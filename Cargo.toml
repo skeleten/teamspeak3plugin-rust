@@ -1,0 +1,11 @@
+[package]
+name = "teamspeak3client"
+version = "0.1.0"
+authors = ["skeleten <skele@ymail.com>"]
+
+[dependencies]
+libc = "*"
+
+[lib]
+name = "teamspeak3client"
+crate_type = ["dylib"]
