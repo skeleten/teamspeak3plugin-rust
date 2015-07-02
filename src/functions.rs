@@ -79,6 +79,104 @@ struct TS3Functions {
 	requestSendServerTextMsg:			extern fn(c_ulong, *const c_char, *const c_char) -> c_uint,
 	requestConnectionInfo:				extern fn(c_ulong, c_short, *const c_char) -> c_uint,
 	requestClientSetWhisperList:		extern fn(c_ulong, c_short, *const c_ulong, *const c_short, *const c_char) -> c_uint,
-	
+	requestChannelSubscribe:			extern fn(c_ulong, *const c_ulong, *const c_char) -> c_uint,
+	requestChannelSubscribeAll:			extern fn(c_ulong, *const c_char) -> c_uint,
+	requestChannelUnsubscribe:			extern fn(c_ulong, *const c_ulong, *const c_char) -> c_uint,
+	requestChannelUnsubscribeAll:		extern fn(c_ulong, *const c_char) -> c_uint,
+	requestChannelDescription:			extern fn(c_ulong, c_ulong, *const c_char) -> c_uint,
+	requestMuteClients:					extern fn(c_ulong, *const c_short, *const c_char) -> c_uint,
+	requsetUnmuteClients:				extern fn(c_ulong, *const c_short, *const c_char) -> c_uint,
+	requestClientPoke:					extern fn(c_ulong, c_short, *const c_char, *const c_char) -> c_uint,
+	requestClientIDs:					extern fn(c_ulong, *const c_char, *const c_char) -> c_uint,
+	clientChatClosed:					extern fn(c_ulong, *const c_char, c_short, *const c_char) -> c_uint,
+	clientChatComposing:				extern fn(c_ulong, c_short, *const c_char) -> c_uint,
+	requestServerTemporaryPasswordAdd:	extern fn(c_ulong, *const c_char, *const c_char, c_ulong, c_ulong, *const c_char, *const c_char) -> c_uint,
+	requestServerTemporaryPasswordDel:	extern fn(c_ulong, *const c_char, *const c_char) -> c_uint,
+	requestServerTemporaryPasswordList:	extern fn(c_ulong, *const c_char) -> c_uint,
 
+	// access clientlib information
+
+	// query own client id
+	getClientId:						extern fn(c_ulong, *c_short) -> c_uint,
+
+	// client info
+	getClientSelfVariableAsInt:			extern fn(c_ulong, size_t, *c_int) -> c_uint,
+	getClientSelfVariableAsString:		extern fn(c_ulong, size_t, **c_char) -> c_uint,
+	setClientSelfVariableAsInt:			extern fn(c_ulong, size_t, c_int) -> c_uint,
+	setClientSelfVariableAsString:		extern fn(c_ulong, size_t, *const c_char) -> c_uint,
+	flushClientSelfUpdates:				extern fn(c_ulong, *const c_char) -> c_uint,
+	getClientVariableAsInt:				extern fn(c_ulong, c_short, size_t, *c_int) -> c_uint,
+	getClientVariableAsUInt64:			extern fn(c_ulong, c_short, size_t, *c_ulong) -> c_uint,
+	getClientVariableAsString:			extern fn(c_ulong, c_short, size_t, **c_char) -> c_uint,
+	getClientList:						extern fn(c_ulong, **c_short) -> c_uint,
+	getChannelOfClient:					extern fn(c_ulong, c_short, *c_ulong) -> c_uint,
+
+	// channel info
+	getChannelVariableAsInt:			extern fn(c_ulong, c_ulong, size_t, *c_int) -> c_uint,
+	getChannelVariableAsUInt64:			extern fn(c_ulong, c_ulong, size_t, *c_ulong) -> c_uint,
+	getChannelVariableAsString:			extern fn(c_ulong, c_ulong, size_t, **c_char) -> c_uint,
+	getChannelIDFromChannelNames:		extern fn(c_ulong, **c_char, *c_ulong) -> c_uint,
+	setChannelVariableAsInt:			extern fn(c_ulong, c_ulong, size_t, c_int) -> c_uint,
+	setChannelVariableAsUInt64:			extern fn(c_ulong, c_ulong, size_t, c_ulong) -> c_uint,
+	setChannelVariableAsString:			extern fn(c_ulong, c_ulong, size_t, *const c_char) -> c_uint,
+	flushChannelUpdates:				extern fn(c_ulong, c_ulong, *const c_char) -> c_uint,
+	flushChannelCreation:				extern fn(c_ulong, c_ulong, *const c_char) -> c_uint,
+	getChannelList:						extern fn(c_ulong, **c_ulong) -> c_uint,
+	getChannelClientList:				extern fn(c_ulong, c_ulong, **c_short) -> c_uint,
+	getParentChannelOfChannel:			extern fn(c_ulong, c_ulong, *c_ulong) -> c_uint,
+
+	// server info
+	getServerConnectionHandlerList:		extern fn(**c_ulong) -> c_uint,
+	getServerVariableAsInt:				extern fn(c_ulong, size_t, *c_int) -> c_uint,
+	getServerVariableAsUInt64:			extern fn(c_ulong, size_t, *c_ulong) -> c_uint,
+	getServerVariableAsString:			extern fn(c_ulong, size_t, **c_char) -> c_uint,
+	requestServerVariables:				extern fn(c_ulong) -> c_uint,
+
+	// connection info
+	getConnectionStatus:				extern fn(c_ulong, *c_int) -> c_uint,
+	getConnectionVariableAsUInt64:		extern fn(c_ulong, c_short, size_t, *c_ulong) -> c_uint,
+	getConnectionVariableAsDouble:		extern fn(c_ulong, c_short, size_t, *c_double) -> c_uint,
+	getConnectionVariableAsString:		extern fn(c_ulong, c_short, size_t, **c_char) -> c_uint,
+	cleanUpConnectionInfo:				extern fn(c_ulong, c_short) -> c_uint,
+
+	// client related
+	requestClietnDBIDfromUID:			extern fn(c_ulong, *const c_char, *const c_char) -> c_uint,
+	requestClientNamefromUID:			extern fn(c_ulong, *const c_char, *const c_char) -> c_uint,
+	requestClientNamefromDBID:			extern fn(c_ulong, c_ulong, *const c_char) -> c_uint,
+	requestClientEditDescription:		extern fn(c_ulong, c_short, *const c_char, *const c_char) -> c_uint,
+	requestClientSetIsTalker:			extern fn(c_ulong, c_int, *const c_char, *const c_char) -> c_uint,
+
+	// plugin related
+	requestSendClientQueryCommand:		extern fn(c_ulong, *const c_char, *const c_char) -> c_uint,
+
+	// Filetransfer
+	getTransferFileName:				extern fn(c_short, **c_char) -> c_uint,
+	getTransferFilePath:				extern fn(c_short, **c_char) -> c_uint,
+	getTransferFileSize:				extern fn(c_short, *c_ulong) -> c_uint,
+	getTransferFileSizeDone:			extern fn(c_short, *c_ulong) -> c_uint,
+	isTransferSender:					extern fn(c_short, *c_int) -> c_uint,
+	getTransferStatus:					extern fn(c_short, *c_int) -> c_uint,
+	getCurrentTransferSpeed:			extern fn(c_short, *c_float) -> c_uint,
+	getAverageTransferSpeed:			extern fn(c_short, *c_float) -> c_uint,
+	getTransferRunTime:					extern fn(c_short, *c_ulong) -> c_uint,
+	sendFile:							extern fn(c_ulong, c_ulong, *const c_char, *const c_char, c_int, c_int, *const c_char, *c_short, *const c_char) -> c_uint,
+	requestFile:						extern fn(c_ulong, c_ulong, *const c_char, *const c_char, c_int, c_int, *const c_char, *c_short, *const c_char) -> c_uint,
+	haltTransfer:						extern fn(c_ulong, c_short, c_int, *const c_char) -> c_uint,
+	requestFileList:					extern fn(c_ulong, c_ulong, *const c_char, *const c_char, *const c_char) -> c_uint,
+	requestFileInfo:					extern fn(c_ulong, c_ulong, *const c_char, *const c_char, *const c_char) -> c_uint,
+	requestDeleteFile:					extern fn(c_ulong, c_ulong, *const c_char, **const c_char, *const c_char) -> c_uint,
+	requestCreateDirectory:				extern fn(c_ulong, c_ulong, *const c_char, *const char, *const char) -> c_uint,
+	requsetRenameFile:					extern fn(c_ulong, c_ulong, *const c_char, c_ulong, *const c_char, *const c_char, *const c_char, *const c_char) -> c_uint
+
+	// Offline message management
+	requestMessageAdd:					extern fn(c_ulong, *const c_char, *const c_char, *const c_char, *const c_char) -> c_uint,
+	requestMessageDel:					extern fn(c_ulong, c_ulong, *const c_char) -> c_uint,
+	requestMessageGet:					extern fn(c_ulong, c_ulong, *const c_char) -> c_uint,
+	requestMessageList:					extern fn(c_ulong, *const c_char) -> c_uint,
+	requestMessageUpdateFlag:			extern fn(c_ulong, c_ulong, c_int, *const c_char) -> c_uint,
+
+	// Interacting with the server - confirming passwords
+	verifyServerPassword:				extern fn(c_ulong, *const c_char, *const c_char) -> c_uint,
+	verifyChannelPassword:				extern fn(c_ulong, c_ulong, *const c_char, *const c_char) -> c_uint,
+	
 }
