@@ -278,14 +278,121 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn get_client_lib_version_number(&self) -> Result<u32, Error> {
-		let mut number: u32 = 0;
-		let err = (self.getClientLibVersionNumber)(&mut number);
+	pub unsafe fn get_client_lib_version_number(&self) -> Result<u64, Error> {
+		let mut version: c_ulong = 0;
+		let err = (self.getClientLibVersionNumber)(&mut version);
 		let err = Error::from_u32(err);
 		if err == Error::ERROR_ok {
-			Ok(number)
+			Ok(version as u64)
 		} else {
 			Err(err)
 		}
-	}	
+	}
+
+	pub unsafe fn spawn_new_server_connection_handler(&self, port: i32) -> Result<u64, Error> {
+		let mut handler: c_ulong = 0;
+		let err = (self.spawnNewServerConnectionHandler)(port, &mut handler);
+		let err = Error::from_u32(err);
+
+		if err == Error::ERROR_ok {
+			Ok(handler as u64)
+		} else {
+			Err(err)
+		}
+	}
+
+	pub unsafe fn destroy_server_connection_handler(&self, handler: u64) -> Result<(), Error> {
+		let err = (self.destroyServerConnectionHandler)(handler as c_ulong);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
+
+	// Error handling
+	pub unsafe fn get_error_message(&self, errorCode: u32) -> Result<String, Error> {
+		let mut foo: *mut c_char = std::ptr::null_mut();
+		let err = (self.getErrorMessage)(errorCode as c_uint, &mut foo);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			let cstr = CStr::from_ptr(foo);
+			let string = std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
+			(self.freeMemory)(foo as *mut c_void);
+			Ok(string)
+		} else {
+			Err(err)
+		}
+	}
+
+	// memory management being omitted, we won't use it in the abstract level
+
+	// Logging
+	pub unsafe fn log_message(&self, logMessage: String, severity: LogLevel, channel: String, logId: u64) -> Result<(), Error> {
+		let message_ptr = CString::new(logMessage).unwrap().as_ptr();
+		let channel_ptr = CString::new(channel).unwrap().as_ptr();
+		let err = (self.logMessage)(message_ptr, severity, channel_ptr, logId as c_ulong);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
+
+	// TODO: sound
+
+	// preprocesor
+	pub unsafe fn get_preprocessor_info_value_float(&self, handler: u64, identifier: String) -> Result<f32, Error> {
+		let mut result: f32 = 0.0;
+		let err = (self.getPreProcessorInfoValueFloat)(handler as c_ulong, CString::new(identifier).unwrap().as_ptr(), &mut result);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			Ok(result)
+		} else {
+			Err(err)
+		}
+	}
+
+	pub unsafe fn get_preprocessor_config_value(&self, handler: u64, identifier: String) -> Result<String, Error> {
+		let mut foo: *mut c_char = std::ptr::null_mut();
+		let err = (self.getPreProcessorConfigValue)(handler as c_ulong, CString::new(identifier).unwrap().as_ptr(), &mut foo);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			let cstr = CStr::from_ptr(foo);
+			let string = std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
+			(self.freeMemory)(foo as *mut c_void);
+			Ok(string)
+		} else {
+			Err(err)
+		}
+	}
+
+	pub unsafe fn set_preprocessor_config_value(&self, handler: u64, identifer: String, value: String) -> Result<(), Error> {
+		let ident_ptr = CString::new(identifer).unwrap().as_ptr();
+		let value_ptr = CString::new(value).unwrap().as_ptr();
+		let err = (self.setPreProcessorConfigValue)(handler as c_ulong, ident_ptr, value_ptr);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
+
+	// encoder
+	pub unsafe fn get_encode_config_value(&self, handler: u64, identifier: String) -> Result<String, Error> {
+		let mut foo: *mut c_char = std::ptr::null_mut();
+		let ident_ptr = CString::new(identifier).unwrap().as_ptr();
+		let err = (self.getEncodeConfigValue)(handler as c_ulong, ident_ptr, &mut foo);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			let result = std::str::from_utf8(CStr::from_ptr(foo).to_bytes()).unwrap().to_owned();
+			(self.freeMemory)(foo as *mut c_void);
+			Ok(result)
+		} else {
+			Err(err)
+		}
+	}
 }
