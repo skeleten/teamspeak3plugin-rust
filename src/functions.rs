@@ -276,5 +276,16 @@ impl TS3Functions {
 		} else {
 			Err(err)
 		}
-	}		
+	}
+
+	pub unsafe fn get_client_lib_version_number(&self) -> Result<u32, Error> {
+		let mut number: u32 = 0;
+		let err = (self.getClientLibVersionNumber)(&mut number);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			Ok(number)
+		} else {
+			Err(err)
+		}
+	}	
 }
