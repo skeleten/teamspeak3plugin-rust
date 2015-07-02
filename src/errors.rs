@@ -1,5 +1,5 @@
 /// Errors, as defined in public_erros.h and public_errors_rare.h of the ts3-plugin SDK.
-
+use libc::c_uint;
 #[repr(c_uint)] 
 enum Errors { 
 	// general

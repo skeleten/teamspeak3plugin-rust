@@ -1,11 +1,26 @@
 // src/lib.rs
 #![crate_type = "dylib"]
+#![allow(dead_code)]
+#![allow(non_camel_case_types)]
+#![allow(unused_imports)]
+#![allow(non_snake_case)]
+
 extern crate libc;
+mod defsenum;
+mod defsother;
+mod functions;
 
 use std::ffi::CString;
 // use libc;
+use defsenum::*;
+use defsother::*;
+
+use std::io::prelude::*;
+use std::fs::File;
 
 const PLUGIN_API_VERSION: libc::c_int			= 20;
+
+static mut funcs: Option<functions::TS3Functions>		= None;
 
 #[no_mangle]
 pub fn ts3plugin_name() -> *const libc::c_char {
@@ -33,12 +48,15 @@ pub fn ts3plugin_description() -> *const libc::c_char {
 }
 
 #[no_mangle]
-pub fn ts3plugin_setFunctionPointers(/* ??? */) {
-	// TODO!!!
+pub unsafe fn ts3plugin_setFunctionPointers(fs: functions::TS3Functions) {
+	funcs = Some(fs);
 }
 
 #[no_mangle]
 pub fn ts3plugin_init() -> libc::c_int {
+	let mut f = File::create("C:\\tmp\\test.txt").ok().unwrap();
+	f.write_all(b"initialised!").ok();
+
 	// should return 0 on success, 1 on failure
 
 	/* getAppPath, getResourcesPath, getConfigPath, getPluginPath
