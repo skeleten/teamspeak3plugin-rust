@@ -6,6 +6,7 @@
 #![allow(non_snake_case)]
 
 extern crate libc;
+mod errors;
 mod defsenum;
 mod defsother;
 mod functions;

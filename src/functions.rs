@@ -3,9 +3,11 @@
 use std::ffi::CStr;
 use std::ffi::CString;
 use libc::*;
+use std;
 
 use defsenum::*;
 use defsother::*;
+use errors::Error;
 
 pub struct TS3Functions {
 	getClientLibVersion:						extern fn(*mut *mut c_char) -> c_uint,
@@ -262,11 +264,17 @@ pub struct TS3Functions {
 
 // higher level stuff ^-^
 impl TS3Functions {
-	pub unsafe fn log_message(&self, message: &str, level: LogLevel) {
-		(self.logMessage)(
-				CString::new(message).unwrap().as_ptr(), 
-				level, 
-				CString::new("").unwrap().as_ptr(), 
-				0);
-	}
+	pub unsafe fn get_client_lib_version(&self) -> Result<String, Error> {
+		let mut foo: *mut c_char = std::ptr::null_mut();
+		let err = (self.getClientLibVersion)(&mut foo);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			let cstr = CStr::from_ptr(foo);
+			let string = std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
+			(self.freeMemory)(foo as *mut c_void);
+			Ok(string)
+		} else {
+			Err(err)
+		}
+	}		
 }

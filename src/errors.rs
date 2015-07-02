@@ -1,7 +1,10 @@
 /// Errors, as defined in public_erros.h and public_errors_rare.h of the ts3-plugin SDK.
 use libc::c_uint;
-#[repr(c_uint)] 
-enum Errors { 
+use std;
+
+#[derive(PartialEq)]
+#[repr(u32)] 
+pub enum Error { 
 	// general
 	ERROR_ok										= 0x00_00,
 	ERROR_undefined									= 0x00_01,
@@ -235,4 +238,14 @@ enum Errors {
 	ERROR_provisioning_invalid_timeout				= 0x11_18,
 	ERROR_provisioning_ts3sever_not_found			= 0x11_19,
 	ERROR_provisioning_no_permission				= 0x11_1A,
+}
+
+impl Error {
+	pub unsafe fn to_u32(self) -> u32 {
+		std::mem::transmute(self)
+	}
+
+	pub unsafe fn from_u32(val: u32) -> Error {
+		std::mem::transmute(val)
+	}
 }
