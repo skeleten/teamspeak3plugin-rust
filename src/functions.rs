@@ -485,9 +485,11 @@ impl TS3Functions {
 					-> Result<(), Error> {
 
 		let ServerConnectionHandler(h) = handler;
-		if defaultChannels.last().map(|s| !s.is_empty()).unwrap_or(false) {
-			defaultChannels.push(String::new());
-		}
+		if let Some(ref s) = defaultChannels.last() {
+			if !s.is_empty() {
+				defaultChannels.push(String::new());
+			}
+		};
 		let channels: Vec<_> = defaultChannels.into_iter().map(|s| CString::new(s).unwrap()).collect();
 		let channel_ptrs: Vec<_> = channels.iter().map(|s| s.as_ptr()).collect();
 		let ptr_channels: *const *const c_char = if channel_ptrs.is_empty() {
@@ -530,4 +532,24 @@ impl TS3Functions {
 			Err(err)
 		}
 	}
+
+	pub unsafe fn request_client_move(&self, handler: ServerConnectionHandler, clientId: u16, newChannelId: u64, password: String, returnCode: String) -> Result<(), Error> {
+		let ServerConnectionHandler(h) = handler;
+		let password_cstr = CString::new(password).unwrap();
+		let return_empty = returnCode.is_empty();
+		let return_code_cstr = CString::new(returnCode).unwrap();
+		let reutrn_code_ptr: *const c_char = if return_empty {
+			std::ptr::null()
+		} else {
+			return_code_cstr.as_ptr()
+		};
+
+		let err = (self.requestClientMove)(h, clientId, newChannelId, password_cstr.as_ptr(), reutrn_code_ptr);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}	
 }
