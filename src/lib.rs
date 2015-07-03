@@ -7,21 +7,19 @@
 
 extern crate libc;
 mod errors;
-mod defsenum;
-mod defsother;
+mod definitions;
 mod functions;
 
 use std::ffi::CString;
 // use libc;
-use defsenum::*;
-use defsother::*;
 
 use std::io::prelude::*;
 use std::fs::File;
+use functions::TS3Functions;
 
-const PLUGIN_API_VERSION: libc::c_int			= 20;
+const PLUGIN_API_VERSION: libc::c_int = 20;
 
-static mut funcs: Option<functions::TS3Functions>		= None;
+pub static mut function_pointers: Option<TS3Functions> = None;
 
 #[no_mangle]
 pub fn ts3plugin_name() -> *const libc::c_char {
@@ -50,13 +48,16 @@ pub fn ts3plugin_description() -> *const libc::c_char {
 
 #[no_mangle]
 pub unsafe fn ts3plugin_setFunctionPointers(fs: functions::TS3Functions) {
-	funcs = Some(fs);
+	function_pointers = Some(fs);
 }
 
 #[no_mangle]
 pub fn ts3plugin_init() -> libc::c_int {
 	let mut f = File::create("C:\\tmp\\test.txt").ok().unwrap();
-	f.write_all(b"initialised!").ok();
+	f.write_all(b"initialised!\n").ok();
+
+	function_pointers.unwrap().
+
 
 	// should return 0 on success, 1 on failure
 

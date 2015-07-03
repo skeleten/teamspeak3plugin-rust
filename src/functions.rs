@@ -6,12 +6,9 @@ use libc::*;
 use std;
 use std::vec::Vec;
 
-use defsenum::*;
-use defsother::*;
+use definitions::*;
 use errors::Error;
 
-// newtypes
-pub struct ServerConnectionHandler(u64);
 
 // low level function-pointers
 pub struct TS3Functions {
@@ -75,7 +72,7 @@ pub struct TS3Functions {
 	startConnection:							extern fn(c_ulong, *const c_char, *const c_char, c_uint, *const c_char, *const *const c_char, *const c_char, *const c_char) -> c_uint,
 	stopConnection:								extern fn(c_ulong, *const c_char) -> c_uint,
 	requestClientMove:							extern fn(c_ulong, c_ushort, c_ulong, *const c_char, *const c_char) -> c_uint, 
-	requestClientVariables:						extern fn(c_ulong, c_ushort, c_ulong, *const c_char) -> c_uint,
+	requestClientVariables:						extern fn(c_ulong, c_ushort, *const c_char) -> c_uint,
 	requestClientKickFromChannel:				extern fn(c_ulong, c_ushort, *const c_char, *const c_char) -> c_uint,
 	requestClientKickFromServer:				extern fn(c_ulong, c_ushort, *const c_char, *const c_char) -> c_uint,
 	requestChannelDelete:						extern fn(c_ulong, c_ulong, c_int, *const c_char) -> c_uint,
@@ -267,12 +264,15 @@ pub struct TS3Functions {
 	getClientNeededPermission:					extern fn(c_ulong, *const c_char, *mut c_int) -> c_uint
 }
 
+// threading
+unsafe impl std::marker::Sync for TS3Functions { }
+
 // higher level stuff ^-^
 impl TS3Functions {
 	pub unsafe fn get_client_lib_version(&self) -> Result<String, Error> {
 		let mut foo: *mut c_char = std::ptr::null_mut();
 		let err = (self.getClientLibVersion)(&mut foo);
-		let err = Error::from_u32(err);
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			let cstr = CStr::from_ptr(foo);
 			let string = std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
@@ -286,7 +286,7 @@ impl TS3Functions {
 	pub unsafe fn get_client_lib_version_number(&self) -> Result<u64, Error> {
 		let mut version: c_ulong = 0;
 		let err = (self.getClientLibVersionNumber)(&mut version);
-		let err = Error::from_u32(err);
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(version as u64)
 		} else {
@@ -294,22 +294,21 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn spawn_new_server_connection_handler(&self, port: i32) -> Result<u64, Error> {
+	pub unsafe fn spawn_new_server_connection_handler(&self, port: i32) -> Result<ServerConnectionHandler, Error> {
 		let mut handler: c_ulong = 0;
 		let err = (self.spawnNewServerConnectionHandler)(port, &mut handler);
-		let err = Error::from_u32(err);
+		let err = Error::from(err);
 
 		if err == Error::ERROR_ok {
-			Ok(handler as u64)
+			Ok(ServerConnectionHandler(handler as u64))
 		} else {
 			Err(err)
 		}
 	}
 
 	pub unsafe fn destroy_server_connection_handler(&self, handler: ServerConnectionHandler) -> Result<(), Error> {
-		let ServerConnectionHandler(h) = handler;
-		let err = (self.destroyServerConnectionHandler)(h);
-		let err = Error::from_u32(err);
+		let err = (self.destroyServerConnectionHandler)(handler.into());
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
 		} else {
@@ -321,7 +320,7 @@ impl TS3Functions {
 	pub unsafe fn get_error_message(&self, errorCode: u32) -> Result<String, Error> {
 		let mut foo: *mut c_char = std::ptr::null_mut();
 		let err = (self.getErrorMessage)(errorCode as c_uint, &mut foo);
-		let err = Error::from_u32(err);
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			let cstr = CStr::from_ptr(foo);
 			let string = std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
@@ -339,7 +338,7 @@ impl TS3Functions {
 		let message_ptr = CString::new(logMessage).unwrap();
 		let channel_ptr = CString::new(channel).unwrap();
 		let err = (self.logMessage)(message_ptr.as_ptr(), severity, channel_ptr.as_ptr(), logId as c_ulong);
-		let err = Error::from_u32(err);
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
 		} else {
@@ -354,8 +353,8 @@ impl TS3Functions {
 		let ServerConnectionHandler(h) = handler;
 		let mut result: f32 = 0.0;
 		let ident_cstr = CString::new(identifier).unwrap();
-		let err = (self.getPreProcessorInfoValueFloat)(h, ident_cstr.as_ptr(), &mut result);
-		let err = Error::from_u32(err);
+		let err = (self.getPreProcessorInfoValueFloat)(h as c_ulong, ident_cstr.as_ptr(), &mut result);
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(result)
 		} else {
@@ -367,8 +366,8 @@ impl TS3Functions {
 		let ServerConnectionHandler(h) = handler;
 		let mut foo: *mut c_char = std::ptr::null_mut();
 		let ident_cstr = CString::new(identifier).unwrap();
-		let err = (self.getPreProcessorConfigValue)(h, ident_cstr.as_ptr(), &mut foo);
-		let err = Error::from_u32(err);
+		let err = (self.getPreProcessorConfigValue)(h as c_ulong, ident_cstr.as_ptr(), &mut foo);
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			let cstr = CStr::from_ptr(foo);
 			let string = std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
@@ -383,8 +382,8 @@ impl TS3Functions {
 		let ServerConnectionHandler(h) = handler;
 		let ident_ptr = CString::new(identifer).unwrap();
 		let value_ptr = CString::new(value).unwrap();
-		let err = (self.setPreProcessorConfigValue)(h, ident_ptr.as_ptr(), value_ptr.as_ptr());
-		let err = Error::from_u32(err);
+		let err = (self.setPreProcessorConfigValue)(h as c_ulong, ident_ptr.as_ptr(), value_ptr.as_ptr());
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
 		} else {
@@ -397,8 +396,8 @@ impl TS3Functions {
 		let ServerConnectionHandler(h) = handler;
 		let mut foo: *mut c_char = std::ptr::null_mut();
 		let ident_cstr = CString::new(identifier).unwrap();
-		let err = (self.getEncodeConfigValue)(h, ident_cstr.as_ptr(), &mut foo);
-		let err = Error::from_u32(err);
+		let err = (self.getEncodeConfigValue)(h as c_ulong, ident_cstr.as_ptr(), &mut foo);
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			let result = std::str::from_utf8(CStr::from_ptr(foo).to_bytes()).unwrap().to_owned();
 			(self.freeMemory)(foo as *mut c_void);
@@ -413,8 +412,8 @@ impl TS3Functions {
 		let ServerConnectionHandler(h) = handler;
 		let mut result: f32 = 0.0;
 		let ident_cstr = CString::new(identifier).unwrap();
-		let err = (self.getPlaybackConfigValueAsFloat)(h, ident_cstr.as_ptr(), &mut result);
-		let err = Error::from_u32(err);
+		let err = (self.getPlaybackConfigValueAsFloat)(h as c_ulong, ident_cstr.as_ptr(), &mut result);
+		let err = Error::from(err);
 
 		if err == Error::ERROR_ok {
 			Ok(result)
@@ -427,8 +426,8 @@ impl TS3Functions {
 		let ServerConnectionHandler(h) = handler;
 		let ident_cstr = CString::new(identifier).unwrap();
 		let value_cstr = CString::new(value).unwrap();
-		let err = (self.setPlaybackConfigValue)(h, ident_cstr.as_ptr(), value_cstr.as_ptr());
-		let err = Error::from_u32(err);
+		let err = (self.setPlaybackConfigValue)(h as c_ulong, ident_cstr.as_ptr(), value_cstr.as_ptr());
+		let err = Error::from(err);
 
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -439,8 +438,8 @@ impl TS3Functions {
 
 	pub unsafe fn set_client_volume_modifier(&self, handler: ServerConnectionHandler, client_id: u16, modifier: f32) -> Result<(), Error> {
 		let ServerConnectionHandler(h) = handler;
-		let err = (self.setClientVolumeModifier)(h, client_id as c_ushort, modifier as c_float);
-		let err = Error::from_u32(err);
+		let err = (self.setClientVolumeModifier)(h as c_ulong, client_id as c_ushort, modifier as c_float);
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
 		} else {
@@ -451,8 +450,8 @@ impl TS3Functions {
 	// recording
 	pub unsafe fn start_voice_recording(&self, handler: ServerConnectionHandler) -> Result<(), Error> {
 		let ServerConnectionHandler(h) = handler;
-		let err = (self.startVoiceRecording)(h);
-		let err = Error::from_u32(err);
+		let err = (self.startVoiceRecording)(h as c_ulong);
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
 		} else {
@@ -462,8 +461,8 @@ impl TS3Functions {
 
 	pub unsafe fn stop_voice_recording(&self, handler: ServerConnectionHandler) -> Result<(), Error> {
 		let ServerConnectionHandler(h) = handler;
-		let err = (self.stopVoiceRecording)(h);
-		let err = Error::from_u32(err);
+		let err = (self.stopVoiceRecording)(h as c_ulong);
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
 		} else {
@@ -479,19 +478,17 @@ impl TS3Functions {
 				ip: String, 
 				port: u32, 
 				nickname: String, 
-				defaultChannels: Vec<String>, 
+				defaultChannels: &mut Vec<String>, 
 				defaultChannelPw: String, 
 				serverPw: String) 
 					-> Result<(), Error> {
 
 		let ServerConnectionHandler(h) = handler;
-		if let Some(ref s) = defaultChannels.last() {
-			if !s.is_empty() {
-				defaultChannels.push(String::new());
-			}
+		if defaultChannels.last().map(|s| !s.is_empty()).unwrap_or(false) {
+			defaultChannels.push(String::new());
 		};
-		let channels: Vec<_> = defaultChannels.into_iter().map(|s| CString::new(s).unwrap()).collect();
-		let channel_ptrs: Vec<_> = channels.iter().map(|s| s.as_ptr()).collect();
+		let channels: Vec<CString> = defaultChannels.into_iter().map(|s| CString::new(&**s).unwrap()).collect();
+		let channel_ptrs: Vec<*const c_char> = channels.iter().map(|s| s.as_ptr()).collect();
 		let ptr_channels: *const *const c_char = if channel_ptrs.is_empty() {
 			std::ptr::null()
 		} else {
@@ -504,7 +501,7 @@ impl TS3Functions {
 		let defServPw_cstr = CString::new(serverPw).unwrap();
 
 		let err = (self.startConnection)(
-			h, 
+			h as c_ulong, 
 			ident_cstr.as_ptr(), 
 			ip_cstr.as_ptr(),
 			port, 
@@ -513,7 +510,7 @@ impl TS3Functions {
 			defChanPw_cstr.as_ptr(), 
 			defServPw_cstr.as_ptr());
 
-		let err = Error::from_u32(err);
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
 		} else {
@@ -524,8 +521,8 @@ impl TS3Functions {
 	pub unsafe fn stop_connection(&self, handler: ServerConnectionHandler, quit_message: String) -> Result<(), Error> {
 		let ServerConnectionHandler(h) = handler;
 		let message_cstr = CString::new(quit_message).unwrap();
-		let err = (self.stopConnection)(h, message_cstr.as_ptr());
-		let err = Error::from_u32(err);
+		let err = (self.stopConnection)(h as c_ulong, message_cstr.as_ptr());
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
 		} else {
@@ -544,12 +541,63 @@ impl TS3Functions {
 			return_code_cstr.as_ptr()
 		};
 
-		let err = (self.requestClientMove)(h, clientId, newChannelId, password_cstr.as_ptr(), reutrn_code_ptr);
-		let err = Error::from_u32(err);
+		let err = (self.requestClientMove)(h as c_ulong, clientId as c_ushort, newChannelId as c_ulong, password_cstr.as_ptr(), reutrn_code_ptr);
+		let err = Error::from(err);
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
+
+	pub unsafe fn request_client_variables(&self, handler: ServerConnectionHandler, clientId: u16, returnCode: String) -> Result<(), Error> {
+		let ServerConnectionHandler(h) = handler;
+		let returnCode_cstr = CString::new(returnCode).unwrap();
+		let err = (self.requestClientVariables)(h as c_ulong, clientId as c_ushort, returnCode_cstr.as_ptr());
+		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
 		} else {
 			Err(err)
 		}
 	}	
+
+	pub unsafe fn request_client_kick_from_channel(&self, handler: ServerConnectionHandler, clientId: u16, reason: String, returnCode: String) -> Result<(), Error> {
+		let reason_cstr = CString::new(reason).unwrap();
+		let ret_is_null = returnCode.is_empty();
+		let returnCode_cstr = CString::new(returnCode).unwrap();
+		let returnCode_ptr = if ret_is_null {
+			std::ptr::null()
+		} else {
+			returnCode_cstr.as_ptr()
+		};
+		let ServerConnectionHandler(h) = handler;
+		let err = (self.requestClientKickFromChannel)(h as c_ulong, clientId as c_ushort, reason_cstr.as_ptr(), returnCode_ptr);
+		let err = Error::from(err);
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
+
+	pub unsafe fn request_client_kick_from_server(&self, handler: ServerConnectionHandler, clientId: u16, reason: String, returnCode: String) -> Result<(), Error> {
+		let ServerConnectionHandler(h) = handler;
+		let reason_cstr = CString::new(reason).unwrap();
+		let ret_empty = returnCode.is_empty();
+		let returnCode_cstr = CString::new(returnCode).unwrap();
+		let returnCode_ptr = if ret_empty {
+			std::ptr::null()
+		} else {
+			returnCode_cstr.as_ptr()
+		};
+
+		let err = (self.requestClientKickFromServer)(h as c_ulong, clientId as c_ushort, reason_cstr.as_ptr(), returnCode_ptr);
+		let err = Error::from(err);
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
 }

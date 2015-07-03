@@ -240,12 +240,18 @@ pub enum Error {
 	ERROR_provisioning_no_permission				= 0x11_1A,
 }
 
-impl Error {
-	pub unsafe fn to_u32(self) -> u32 {
-		std::mem::transmute(self)
+impl Into<u32> for Error {
+	fn into(self) -> u32 {
+		unsafe {
+			std::mem::transmute(self)
+		}
 	}
+}
 
-	pub unsafe fn from_u32(val: u32) -> Error {
-		std::mem::transmute(val)
+impl From<u32> for Error {
+	fn from(val: u32) -> Error {
+		unsafe {
+			std::mem::transmute(val)
+		}
 	}
 }
