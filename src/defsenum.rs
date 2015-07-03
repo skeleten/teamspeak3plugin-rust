@@ -52,7 +52,7 @@ pub struct PluginBookmarkItem {
 	isFolder:		c_uchar,
 	reserved:		[c_uchar; 3],
 	// union this ?!?
-	name_2:			[c_char; 1],
+	// name_2:			[c_char; 1],
 	folder:			*mut PluginBookmarkList,
 }
 
