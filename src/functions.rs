@@ -10,6 +10,7 @@ use defsenum::*;
 use defsother::*;
 use errors::Error;
 
+// low level function-pointers
 pub struct TS3Functions {
 	getClientLibVersion:						extern fn(*mut *mut c_char) -> c_uint,
 	getClientLibVersionNumber: 					extern fn(*mut c_ulong) -> c_uint,
@@ -68,7 +69,7 @@ pub struct TS3Functions {
 	stopVoiceRecording:							extern fn(c_ulong) -> c_uint,
 
 	// interaction with the server
-	startConnection:							extern fn(c_ulong, *const c_char, *const c_char, c_uint, *const c_char, *const *mut c_char, *const c_char, *const c_char) -> c_uint,
+	startConnection:							extern fn(c_ulong, *const c_char, *const c_char, c_uint, *const c_char, *const *const c_char, *const c_char, *const c_char) -> c_uint,
 	stopConnection:								extern fn(c_ulong, *const c_char) -> c_uint,
 	requestClientMove:							extern fn(c_ulong, c_ushort, c_ulong, *const c_char, *const c_char) -> c_uint, 
 	requestClientVariables:						extern fn(c_ulong, c_ushort, c_ulong, *const c_char) -> c_uint,
@@ -331,9 +332,9 @@ impl TS3Functions {
 
 	// Logging
 	pub unsafe fn log_message(&self, logMessage: String, severity: LogLevel, channel: String, logId: u64) -> Result<(), Error> {
-		let message_ptr = CString::new(logMessage).unwrap().as_ptr();
-		let channel_ptr = CString::new(channel).unwrap().as_ptr();
-		let err = (self.logMessage)(message_ptr, severity, channel_ptr, logId as c_ulong);
+		let message_ptr = CString::new(logMessage).unwrap();
+		let channel_ptr = CString::new(channel).unwrap()();
+		let err = (self.logMessage)(message_ptr.as_ptr(), severity, channel_ptr.as_ptr(), logId as c_ulong);
 		let err = Error::from_u32(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -347,7 +348,8 @@ impl TS3Functions {
 	// preprocesor
 	pub unsafe fn get_preprocessor_info_value_float(&self, handler: u64, identifier: String) -> Result<f32, Error> {
 		let mut result: f32 = 0.0;
-		let err = (self.getPreProcessorInfoValueFloat)(handler as c_ulong, CString::new(identifier).unwrap().as_ptr(), &mut result);
+		let ident_cstr = CString::new(identifier).unwrap();
+		let err = (self.getPreProcessorInfoValueFloat)(handler as c_ulong, ident_cstr.as_ptr(), &mut result);
 		let err = Error::from_u32(err);
 		if err == Error::ERROR_ok {
 			Ok(result)
@@ -358,7 +360,8 @@ impl TS3Functions {
 
 	pub unsafe fn get_preprocessor_config_value(&self, handler: u64, identifier: String) -> Result<String, Error> {
 		let mut foo: *mut c_char = std::ptr::null_mut();
-		let err = (self.getPreProcessorConfigValue)(handler as c_ulong, CString::new(identifier).unwrap().as_ptr(), &mut foo);
+		let ident_cstr = CString::new(identifier).unwrap();
+		let err = (self.getPreProcessorConfigValue)(handler as c_ulong, ident_cstr.as_ptr(), &mut foo);
 		let err = Error::from_u32(err);
 		if err == Error::ERROR_ok {
 			let cstr = CStr::from_ptr(foo);
@@ -371,9 +374,9 @@ impl TS3Functions {
 	}
 
 	pub unsafe fn set_preprocessor_config_value(&self, handler: u64, identifer: String, value: String) -> Result<(), Error> {
-		let ident_ptr = CString::new(identifer).unwrap().as_ptr();
-		let value_ptr = CString::new(value).unwrap().as_ptr();
-		let err = (self.setPreProcessorConfigValue)(handler as c_ulong, ident_ptr, value_ptr);
+		let ident_ptr = CString::new(identifer).unwrap();
+		let value_ptr = CString::new(value).unwrap();
+		let err = (self.setPreProcessorConfigValue)(handler as c_ulong, ident_ptr.as_ptr(), value_ptr.as_ptr());
 		let err = Error::from_u32(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -385,8 +388,8 @@ impl TS3Functions {
 	// encoder
 	pub unsafe fn get_encode_config_value(&self, handler: u64, identifier: String) -> Result<String, Error> {
 		let mut foo: *mut c_char = std::ptr::null_mut();
-		let ident_ptr = CString::new(identifier).unwrap().as_ptr();
-		let err = (self.getEncodeConfigValue)(handler as c_ulong, ident_ptr, &mut foo);
+		let ident_cstr = CString::new(identifier).unwrap();
+		let err = (self.getEncodeConfigValue)(handler as c_ulong, ident_cstr.as_ptr(), &mut foo);
 		let err = Error::from_u32(err);
 		if err == Error::ERROR_ok {
 			let result = std::str::from_utf8(CStr::from_ptr(foo).to_bytes()).unwrap().to_owned();
@@ -400,8 +403,8 @@ impl TS3Functions {
 	// playback
 	pub unsafe fn get_playback_config_value_as_float(&self, handler: u64, identifier: String) -> Result<f32, Error> {
 		let mut result: f32 = 0.0;
-		let ident_ptr = CString::new(identifier).unwrap().as_ptr();
-		let err = (self.getPlaybackConfigValueAsFloat)(handler as c_ulong, ident_ptr, &mut result);
+		let ident_cstr = CString::new(identifier).unwrap();
+		let err = (self.getPlaybackConfigValueAsFloat)(handler as c_ulong, ident_cstr.as_ptr(), &mut result);
 		let err = Error::from_u32(err);
 
 		if err == Error::ERROR_ok {
@@ -412,9 +415,9 @@ impl TS3Functions {
 	}
 
 	pub unsafe fn set_playback_config_value(&self, handler: u64, identifier: String, value: String) -> Result<(), Error> {
-		let ident_ptr = CString::new(identifier).unwrap().as_ptr();
-		let value_ptr = CString::new(value).unwrap().as_ptr();
-		let err = (self.setPlaybackConfigValue)(handler as c_ulong, ident_ptr, value_ptr);
+		let ident_cstr = CString::new(identifier).unwrap();
+		let value_cstr = CString::new(value).unwrap();
+		let err = (self.setPlaybackConfigValue)(handler as c_ulong, ident_cstr.as_ptr(), value_cstr.as_ptr());
 		let err = Error::from_u32(err);
 
 		if err == Error::ERROR_ok {
@@ -456,22 +459,44 @@ impl TS3Functions {
 	}
 
 	// interaction with the server
-	pub unsafe fn start_connection(&self, handler: u64, ident: String, ip: String, port: u32, nickname: String, defaultChannels: Vec<String>, defaultChannelPw: String, serverPw: String) -> Result<(), Error> {
-		let ident_ptr = CString::new(ident).unwrap().as_ptr();
-		let ip_ptr = CString::new(ip).unwrap().as_ptr();
-		let nick_ptr = CString::new(nickname).unwrap().as_ptr();
-		let mut channels: *const *mut c_char = std::ptr::null_mut();
-		if defaultChannels.len() >= 1 {
-			if !defaultChannels[defaultChannels.len() - 1].is_empty() {
-				defaultChannels.push(String::new());
-			}
-			let c_strs: Vec<*mut c_char> = defaultChannels.iter().map(|s: String| CString::new(s).unwrap().as_ptr()).collect();
-			channels = c_strs.as_ptr();
-		}
-		let channlPw_ptr = CString::new(defaultChannelPw).unwrap().as_ptr();
-		let servPw_ptr = CString::new(serverPw).unwrap().as_ptr();
+	pub unsafe fn start_connection(
+				&self, 
+				handler: u64, 
+				ident: String, 
+				ip: String, 
+				port: u32, 
+				nickname: String, 
+				defaultChannels: Vec<String>, 
+				defaultChannelPw: String, 
+				serverPw: String) 
+					-> Result<(), Error> {
 
-		let err = (self.startConnection)(handler as c_ulong, ident_ptr, ip_ptr, port, nick_ptr, channels, channlPw_ptr, servPw_ptr);
+		if defaultChannels.last().map(|s| !s.is_empty()).unwrap_or(false) {
+			defaultChannels.push(String::new());
+		}
+		let channels: Vec<_> = defaultChannels.into_iter().map(|s| CString::new(s).unwrap()).collect();
+		let channel_ptrs: Vec<_> = channels.iter().map(|s| s.as_ptr()).collect();
+		let ptr_channels: *const *const c_char = if channel_ptrs.is_empty() {
+			std::ptr::null()
+		} else {
+			channel_ptrs.as_ptr()
+		};
+		let ident_cstr = CString::new(ident).unwrap();
+		let ip_cstr = CString::new(ip).unwrap();
+		let nick_cstr = CString::new(nickname).unwrap();
+		let defChanPw_cstr = CString::new(defaultChannelPw).unwrap();
+		let defServPw_cstr = CString::new(serverPw).unwrap();
+
+		let err = (self.startConnection)(
+			handler as c_ulong, 
+			ident_cstr.as_ptr(), 
+			ip_cstr.as_ptr(),
+			port, 
+			nick_cstr.as_ptr(), 
+			ptr_channels, 
+			defChanPw_cstr.as_ptr(), 
+			defServPw_cstr.as_ptr());
+
 		let err = Error::from_u32(err);
 		if err == Error::ERROR_ok {
 			Ok(())
