@@ -56,7 +56,6 @@ pub fn ts3plugin_init() -> libc::c_int {
 	let mut f = File::create("C:\\tmp\\test.txt").ok().unwrap();
 	f.write_all(b"initialised!\n").ok();
 
-	function_pointers.unwrap().
 
 
 	// should return 0 on success, 1 on failure
