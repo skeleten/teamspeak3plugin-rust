@@ -4,6 +4,7 @@ use std::ffi::CStr;
 use std::ffi::CString;
 use libc::*;
 use std;
+use std::vec::Vec;
 
 use defsenum::*;
 use defsother::*;
@@ -67,7 +68,7 @@ pub struct TS3Functions {
 	stopVoiceRecording:							extern fn(c_ulong) -> c_uint,
 
 	// interaction with the server
-	startConnection:							extern fn(c_ulong, *const c_char, *const c_char, c_uint, *const c_char, *mut *const c_char, *const c_char, *const c_char) -> c_uint,
+	startConnection:							extern fn(c_ulong, *const c_char, *const c_char, c_uint, *const c_char, *const *mut c_char, *const c_char, *const c_char) -> c_uint,
 	stopConnection:								extern fn(c_ulong, *const c_char) -> c_uint,
 	requestClientMove:							extern fn(c_ulong, c_ushort, c_ulong, *const c_char, *const c_char) -> c_uint, 
 	requestClientVariables:						extern fn(c_ulong, c_ushort, c_ulong, *const c_char) -> c_uint,
@@ -395,4 +396,88 @@ impl TS3Functions {
 			Err(err)
 		}
 	}
+
+	// playback
+	pub unsafe fn get_playback_config_value_as_float(&self, handler: u64, identifier: String) -> Result<f32, Error> {
+		let mut result: f32 = 0.0;
+		let ident_ptr = CString::new(identifier).unwrap().as_ptr();
+		let err = (self.getPlaybackConfigValueAsFloat)(handler as c_ulong, ident_ptr, &mut result);
+		let err = Error::from_u32(err);
+
+		if err == Error::ERROR_ok {
+			Ok(result)
+		} else {
+			Err(err)
+		}
+	}
+
+	pub unsafe fn set_playback_config_value(&self, handler: u64, identifier: String, value: String) -> Result<(), Error> {
+		let ident_ptr = CString::new(identifier).unwrap().as_ptr();
+		let value_ptr = CString::new(value).unwrap().as_ptr();
+		let err = (self.setPlaybackConfigValue)(handler as c_ulong, ident_ptr, value_ptr);
+		let err = Error::from_u32(err);
+
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
+
+	pub unsafe fn set_client_volume_modifier(&self, handler: u64, client_id: u16, modifier: f32) -> Result<(), Error> {
+		let err = (self.setClientVolumeModifier)(handler as c_ulong, client_id as c_ushort, modifier as c_float);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
+
+	// recording
+	pub unsafe fn start_voice_recording(&self, handler: u64) -> Result<(), Error> {
+		let err = (self.startVoiceRecording)(handler as c_ulong);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
+
+	pub unsafe fn stop_voice_recording(&self, handler: u64) -> Result<(), Error> {
+		let err = (self.stopVoiceRecording)(handler as c_ulong);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
+
+	// interaction with the server
+	pub unsafe fn start_connection(&self, handler: u64, ident: String, ip: String, port: u32, nickname: String, defaultChannels: Vec<String>, defaultChannelPw: String, serverPw: String) -> Result<(), Error> {
+		let ident_ptr = CString::new(ident).unwrap().as_ptr();
+		let ip_ptr = CString::new(ip).unwrap().as_ptr();
+		let nick_ptr = CString::new(nickname).unwrap().as_ptr();
+		let mut channels: *const *mut c_char = std::ptr::null_mut();
+		if defaultChannels.len() >= 1 {
+			if !defaultChannels[defaultChannels.len() - 1].is_empty() {
+				defaultChannels.push(String::new());
+			}
+			let c_strs: Vec<*mut c_char> = defaultChannels.iter().map(|s: String| CString::new(s).unwrap().as_ptr()).collect();
+			channels = c_strs.as_ptr();
+		}
+		let channlPw_ptr = CString::new(defaultChannelPw).unwrap().as_ptr();
+		let servPw_ptr = CString::new(serverPw).unwrap().as_ptr();
+
+		let err = (self.startConnection)(handler as c_ulong, ident_ptr, ip_ptr, port, nick_ptr, channels, channlPw_ptr, servPw_ptr);
+		let err = Error::from_u32(err);
+		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
+
 }
