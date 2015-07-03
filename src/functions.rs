@@ -337,7 +337,7 @@ impl TS3Functions {
 	// Logging
 	pub unsafe fn log_message(&self, logMessage: String, severity: LogLevel, channel: String, logId: u64) -> Result<(), Error> {
 		let message_ptr = CString::new(logMessage).unwrap();
-		let channel_ptr = CString::new(channel).unwrap()();
+		let channel_ptr = CString::new(channel).unwrap();
 		let err = (self.logMessage)(message_ptr.as_ptr(), severity, channel_ptr.as_ptr(), logId as c_ulong);
 		let err = Error::from_u32(err);
 		if err == Error::ERROR_ok {
@@ -521,9 +521,9 @@ impl TS3Functions {
 
 	pub unsafe fn stop_connection(&self, handler: ServerConnectionHandler, quit_message: String) -> Result<(), Error> {
 		let ServerConnectionHandler(h) = handler;
-		let message_cstr = CString::new(quit_message);
+		let message_cstr = CString::new(quit_message).unwrap();
 		let err = (self.stopConnection)(h, message_cstr.as_ptr());
-		let err = Error.from_u32(err);
+		let err = Error::from_u32(err);
 		if err == Error::ERROR_ok {
 			Ok(())
 		} else {
