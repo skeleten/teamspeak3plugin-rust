@@ -69,15 +69,23 @@ macro_rules! teamspeak3_plugin {
 		#[allow(non_snake_case)]
 		pub unsafe fn ts3plugin_setFunctionPointers(fs: ::ts3plugin::TS3Functions) {
 			use std::sync::{Arc,Mutex};
-			::ts3plugin::singleton().functions = Arc::new(Mutex::new(Some(fs)));
+			// ::ts3plugin::singleton()::plugin is of type
+			// Arc<Mutex<Option<Plugin>>>
+			let inni = ::ts3plugin::singleton();
+			let mut guard = inni.plugin.lock().unwrap();
+			if let Some(ref mut plugin) = *guard {
+				plugin.register_client_functions(fs).ok();
+			} else {
+				panic!("no plugin found!");
+			}
 		}
 
 		#[no_mangle]
 		#[allow(non_snake_case)]
 		pub fn ts3plugin_init() -> libc::c_int {
 			use std::sync::{Arc,Mutex};
-			let instance = <$t>::create_instance();
-			instance.init();
+			let mut instance = <$t>::create_instance();
+			instance.init().ok();
 			::ts3plugin::singleton().plugin = Arc::new(Mutex::new(Some(instance)));
 
 			0
