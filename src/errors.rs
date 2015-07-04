@@ -1,6 +1,5 @@
 /// Errors, as defined in public_erros.h and public_errors_rare.h of the ts3-plugin SDK.
 use libc::c_uint;
-use std;
 
 #[derive(PartialEq)]
 #[repr(u32)] 
@@ -243,7 +242,7 @@ pub enum Error {
 impl Into<u32> for Error {
 	fn into(self) -> u32 {
 		unsafe {
-			std::mem::transmute(self)
+			::std::mem::transmute(self)
 		}
 	}
 }
@@ -251,7 +250,7 @@ impl Into<u32> for Error {
 impl From<u32> for Error {
 	fn from(val: u32) -> Error {
 		unsafe {
-			std::mem::transmute(val)
+			::std::mem::transmute(val)
 		}
 	}
 }

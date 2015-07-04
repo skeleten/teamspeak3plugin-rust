@@ -1,5 +1,5 @@
 [package]
-name = "teamspeak3client"
+name = "ts3plugin"
 version = "0.1.0"
 authors = ["skeleten <skele@ymail.com>"]
 

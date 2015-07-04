@@ -1,5 +1,5 @@
 use std::ffi::*;
 use libc::*;
-use state;
+use state::*;
 
 // TODO: create callbacks here and wrap them

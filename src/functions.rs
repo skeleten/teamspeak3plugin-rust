@@ -3,7 +3,6 @@
 use std::ffi::CStr;
 use std::ffi::CString;
 use libc::*;
-use std;
 use std::vec::Vec;
 
 use definitions::*;
@@ -265,17 +264,17 @@ pub struct TS3Functions {
 }
 
 // threading
-unsafe impl std::marker::Sync for TS3Functions { }
+unsafe impl ::std::marker::Sync for TS3Functions { }
 
 // higher level stuff ^-^
 impl TS3Functions {
 	pub unsafe fn get_client_lib_version(&self) -> Result<String, Error> {
-		let mut foo: *mut c_char = std::ptr::null_mut();
+		let mut foo: *mut c_char = ::std::ptr::null_mut();
 		let err = (self.getClientLibVersion)(&mut foo);
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			let cstr = CStr::from_ptr(foo);
-			let string = std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
+			let string = ::std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
 			(self.freeMemory)(foo as *mut c_void);
 			Ok(string)
 		} else {
@@ -318,12 +317,12 @@ impl TS3Functions {
 
 	// Error handling
 	pub unsafe fn get_error_message(&self, errorCode: u32) -> Result<String, Error> {
-		let mut foo: *mut c_char = std::ptr::null_mut();
+		let mut foo: *mut c_char = ::std::ptr::null_mut();
 		let err = (self.getErrorMessage)(errorCode as c_uint, &mut foo);
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			let cstr = CStr::from_ptr(foo);
-			let string = std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
+			let string = ::std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
 			(self.freeMemory)(foo as *mut c_void);
 			Ok(string)
 		} else {
@@ -364,13 +363,13 @@ impl TS3Functions {
 
 	pub unsafe fn get_preprocessor_config_value(&self, handler: ServerConnectionHandler, identifier: String) -> Result<String, Error> {
 		let ServerConnectionHandler(h) = handler;
-		let mut foo: *mut c_char = std::ptr::null_mut();
+		let mut foo: *mut c_char = ::std::ptr::null_mut();
 		let ident_cstr = CString::new(identifier).unwrap();
 		let err = (self.getPreProcessorConfigValue)(h as c_ulong, ident_cstr.as_ptr(), &mut foo);
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			let cstr = CStr::from_ptr(foo);
-			let string = std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
+			let string = ::std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
 			(self.freeMemory)(foo as *mut c_void);
 			Ok(string)
 		} else {
@@ -394,12 +393,12 @@ impl TS3Functions {
 	// encoder
 	pub unsafe fn get_encode_config_value(&self, handler: ServerConnectionHandler, identifier: String) -> Result<String, Error> {
 		let ServerConnectionHandler(h) = handler;
-		let mut foo: *mut c_char = std::ptr::null_mut();
+		let mut foo: *mut c_char = ::std::ptr::null_mut();
 		let ident_cstr = CString::new(identifier).unwrap();
 		let err = (self.getEncodeConfigValue)(h as c_ulong, ident_cstr.as_ptr(), &mut foo);
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
-			let result = std::str::from_utf8(CStr::from_ptr(foo).to_bytes()).unwrap().to_owned();
+			let result = ::std::str::from_utf8(CStr::from_ptr(foo).to_bytes()).unwrap().to_owned();
 			(self.freeMemory)(foo as *mut c_void);
 			Ok(result)
 		} else {
@@ -490,7 +489,7 @@ impl TS3Functions {
 		let channels: Vec<CString> = defaultChannels.into_iter().map(|s| CString::new(&**s).unwrap()).collect();
 		let channel_ptrs: Vec<*const c_char> = channels.iter().map(|s| s.as_ptr()).collect();
 		let ptr_channels: *const *const c_char = if channel_ptrs.is_empty() {
-			std::ptr::null()
+			::std::ptr::null()
 		} else {
 			channel_ptrs.as_ptr()
 		};
@@ -536,7 +535,7 @@ impl TS3Functions {
 		let return_empty = returnCode.is_empty();
 		let return_code_cstr = CString::new(returnCode).unwrap();
 		let reutrn_code_ptr: *const c_char = if return_empty {
-			std::ptr::null()
+			::std::ptr::null()
 		} else {
 			return_code_cstr.as_ptr()
 		};
@@ -567,7 +566,7 @@ impl TS3Functions {
 		let ret_is_null = returnCode.is_empty();
 		let returnCode_cstr = CString::new(returnCode).unwrap();
 		let returnCode_ptr = if ret_is_null {
-			std::ptr::null()
+			::std::ptr::null()
 		} else {
 			returnCode_cstr.as_ptr()
 		};
@@ -587,7 +586,7 @@ impl TS3Functions {
 		let ret_empty = returnCode.is_empty();
 		let returnCode_cstr = CString::new(returnCode).unwrap();
 		let returnCode_ptr = if ret_empty {
-			std::ptr::null()
+			::std::ptr::null()
 		} else {
 			returnCode_cstr.as_ptr()
 		};
