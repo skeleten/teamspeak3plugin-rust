@@ -5,7 +5,4 @@ authors = ["skeleten <skele@ymail.com>"]
 
 [dependencies]
 libc = "*"
-
-[lib]
-name = "teamspeak3client"
-crate_type = ["dylib"]
+lazy_static = "0.1"
