@@ -1,5 +1,6 @@
 // src/lib.rs
 // #![crate_type = "dylib"]
+#![feature(associated_consts)]
 #![allow(dead_code)]
 #![allow(non_camel_case_types)]
 #![allow(unused_imports)]
@@ -22,61 +23,66 @@ use std::fs::File;
 use std::sync::{Arc,Mutex};
 
 pub use functions::TS3Functions;
-pub use interface::Plugin;
+pub use interface::*;
 // pub use callbacks::*; // empty atm.
 pub use definitions::*;
+pub use state::*;
 
 #[macro_export]
 macro_rules! teamspeak3_plugin {
 	($t:ty) => (
+		#[no_mangle]
+		#[allow(non_snake_case)]
 		pub fn ts3plugin_name() -> *const libc::c_char {
-			use std::ffi::CString;
-			static cstr: CString = CString::new(<$t>::name()).unwrap();
-			cstr.as_ptr()
+			static CSTR: &'static str = <$t>::NAME;
+			CSTR.as_ptr() as *const ::libc::c_char
 		}
 
 		#[no_mangle]
+		#[allow(non_snake_case)]
 		pub fn ts3plugin_version() -> *const libc::c_char {
-			use std::ffi::CString;
-			static cstr: CString = CString::new(<$t>::version()).unwrap();
-			cstr.as_ptr()
+			static CSTR: &'static str = <$t>::VERSION;
+			CSTR.as_ptr() as *const ::libc::c_char
 		}
 
 		#[no_mangle]
-		pub fn ts3plugin_apiVersion() -> libc::c_int {
-			<$t>::api_version() as ::libc::c_int
-		}
-
-		#[no_mangle]
+		#[allow(non_snake_case)]
 		pub fn ts3plugin_author() -> *const libc::c_char {
-			use std::ffi::CString;
-			static cstr: CString = CString(<$t>::author()).unwrap();
-			cstr.as_ptr()
+			static CSTR: &'static str = <$t>::AUTHOR;
+			CSTR.as_ptr() as *const ::libc::c_char
 		}
 
 		#[no_mangle]
+		#[allow(non_snake_case)]
 		pub fn ts3plugin_description() -> *const libc::c_char {
-			use std::ffi::CString;
-			static cstr: CString = CString::new(<$t>::description()).unwrap();
-			cstr.as_ptr()
+			static CSTR: &'static str = <$t>::DESCRIPTION;
+			CSTR.as_ptr() as *const ::libc::c_char
 		}
 
 		#[no_mangle]
+		#[allow(non_snake_case)]
+		pub fn ts3plugin_apiVersion() -> libc::c_int {
+			<$t>::API_VERSION as ::libc::c_int
+		}
+
+		#[no_mangle]
+		#[allow(non_snake_case)]
 		pub unsafe fn ts3plugin_setFunctionPointers(fs: ::ts3plugin::TS3Functions) {
 			use std::sync::{Arc,Mutex};
-			::ts3plugin::state::singleton().functions = Arc::new(Mutex::new(Some(fs)));
+			::ts3plugin::singleton().functions = Arc::new(Mutex::new(Some(fs)));
 		}
 
 		#[no_mangle]
+		#[allow(non_snake_case)]
 		pub fn ts3plugin_init() -> libc::c_int {
 			use std::sync::{Arc,Mutex};
-			use ::ts3plugin::state::singleton;
-			singleton().plugin = Arc::new(Mutex::new(Box::new(<$t>::create_isntance())));
+			::ts3plugin::singleton().plugin = Arc::new(Mutex::new(Some(<$t>::create_instance())));
 
 			0
 		}
 
 		#[no_mangle]
+		#[allow(non_snake_case)]
 		pub fn ts3plugin_shutdown() {
 			// free stuff here?
 		}
