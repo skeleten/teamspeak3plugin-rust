@@ -76,7 +76,9 @@ macro_rules! teamspeak3_plugin {
 		#[allow(non_snake_case)]
 		pub fn ts3plugin_init() -> libc::c_int {
 			use std::sync::{Arc,Mutex};
-			::ts3plugin::singleton().plugin = Arc::new(Mutex::new(Some(<$t>::create_instance())));
+			let instance = <$t>::create_instance();
+			instance.init();
+			::ts3plugin::singleton().plugin = Arc::new(Mutex::new(Some(instance)));
 
 			0
 		}
