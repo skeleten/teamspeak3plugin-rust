@@ -5,4 +5,3 @@ authors = ["skeleten <skele@ymail.com>"]
 
 [dependencies]
 libc = "*"
-lazy_static = "0.1"
