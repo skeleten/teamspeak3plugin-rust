@@ -5,10 +5,17 @@
 #![allow(unused_imports)]
 #![allow(non_snake_case)]
 
+#[macro_use]
+extern crate lazy_static;
 extern crate libc;
+
+
 mod errors;
 mod definitions;
 mod functions;
+mod interface;
+mod callbacks;
+mod state;
 
 use std::ffi::CString;
 // use libc;
