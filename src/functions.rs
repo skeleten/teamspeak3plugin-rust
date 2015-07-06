@@ -1,3 +1,4 @@
+
 // mod definitions;
 // mod defs;
 use std::ffi::CStr;
@@ -332,7 +333,13 @@ impl TS3Functions {
 	// memory management being omitted, we won't use it in the abstract level
 
 	// Logging
-	pub unsafe fn log_message(&self, logMessage: String, severity: LogLevel, channel: String, logId: u64) -> Result<(), Error> {
+	pub unsafe fn log_message(
+				&self, 
+				logMessage: String, 
+				severity: LogLevel, 
+				channel: String, 
+				logId: u64
+			) -> Result<(), Error> {
 		let message_ptr = CString::new(logMessage).unwrap();
 		let channel_ptr = CString::new(channel).unwrap();
 		let err = (self.logMessage)(message_ptr.as_ptr(), severity, channel_ptr.as_ptr(), logId as c_ulong);
@@ -347,7 +354,12 @@ impl TS3Functions {
 	// TODO: sound
 
 	// preprocesor
-	pub unsafe fn get_preprocessor_info_value_float(&self, handler: ServerConnectionHandler, identifier: String) -> Result<f32, Error> {
+	pub unsafe fn get_preprocessor_info_value_float(
+				&self, 
+				handler: ServerConnectionHandler, 
+				identifier: String
+			) -> Result<f32, Error> {
+
 		let ServerConnectionHandler(h) = handler;
 		let mut result: f32 = 0.0;
 		let ident_cstr = CString::new(identifier).unwrap();
@@ -360,7 +372,12 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn get_preprocessor_config_value(&self, handler: ServerConnectionHandler, identifier: String) -> Result<String, Error> {
+	pub unsafe fn get_preprocessor_config_value(
+				&self, 
+				handler: ServerConnectionHandler, 
+				identifier: String
+			) -> Result<String, Error> {
+
 		let ServerConnectionHandler(h) = handler;
 		let mut foo: *mut c_char = ::std::ptr::null_mut();
 		let ident_cstr = CString::new(identifier).unwrap();
@@ -376,7 +393,13 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn set_preprocessor_config_value(&self, handler: ServerConnectionHandler, identifer: String, value: String) -> Result<(), Error> {
+	pub unsafe fn set_preprocessor_config_value(
+				&self, 
+				handler: ServerConnectionHandler, 
+				identifer: String, 
+				value: String
+			) -> Result<(), Error> {
+
 		let ServerConnectionHandler(h) = handler;
 		let ident_ptr = CString::new(identifer).unwrap();
 		let value_ptr = CString::new(value).unwrap();
@@ -390,7 +413,12 @@ impl TS3Functions {
 	}
 
 	// encoder
-	pub unsafe fn get_encode_config_value(&self, handler: ServerConnectionHandler, identifier: String) -> Result<String, Error> {
+	pub unsafe fn get_encode_config_value(
+				&self, 
+				handler: ServerConnectionHandler, 
+				identifier: String
+			) -> Result<String, Error> {
+
 		let ServerConnectionHandler(h) = handler;
 		let mut foo: *mut c_char = ::std::ptr::null_mut();
 		let ident_cstr = CString::new(identifier).unwrap();
@@ -406,7 +434,12 @@ impl TS3Functions {
 	}
 
 	// playback
-	pub unsafe fn get_playback_config_value_as_float(&self, handler: ServerConnectionHandler, identifier: String) -> Result<f32, Error> {
+	pub unsafe fn get_playback_config_value_as_float(
+				&self, 
+				handler: ServerConnectionHandler, 
+				identifier: String
+			) -> Result<f32, Error> {
+
 		let ServerConnectionHandler(h) = handler;
 		let mut result: f32 = 0.0;
 		let ident_cstr = CString::new(identifier).unwrap();
@@ -420,11 +453,21 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn set_playback_config_value(&self, handler: ServerConnectionHandler, identifier: String, value: String) -> Result<(), Error> {
+	pub unsafe fn set_playback_config_value(
+				&self, 
+				handler: ServerConnectionHandler, 
+				identifier: String, 
+				value: String
+			) -> Result<(), Error> {
+
 		let ServerConnectionHandler(h) = handler;
 		let ident_cstr = CString::new(identifier).unwrap();
 		let value_cstr = CString::new(value).unwrap();
-		let err = (self.setPlaybackConfigValue)(h as c_ulong, ident_cstr.as_ptr(), value_cstr.as_ptr());
+		let err = (self.setPlaybackConfigValue)(
+			h as c_ulong, 
+			ident_cstr.as_ptr(), 
+			value_cstr.as_ptr());
+
 		let err = Error::from(err);
 
 		if err == Error::ERROR_ok {
@@ -434,9 +477,19 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn set_client_volume_modifier(&self, handler: ServerConnectionHandler, client_id: u16, modifier: f32) -> Result<(), Error> {
+	pub unsafe fn set_client_volume_modifier(
+				&self, 
+				handler: ServerConnectionHandler, 
+				client_id: u16, 
+				modifier: f32
+			) -> Result<(), Error> {
+
 		let ServerConnectionHandler(h) = handler;
-		let err = (self.setClientVolumeModifier)(h as c_ulong, client_id as c_ushort, modifier as c_float);
+		let err = (self.setClientVolumeModifier)(
+			h.into(), 
+			client_id as c_ushort, 
+			modifier as c_float);
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
