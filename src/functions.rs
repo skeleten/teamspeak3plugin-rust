@@ -481,6 +481,7 @@ impl TS3Functions {
 				serverPw: String
 			) -> Result<(), Error> {
 
+		let ServerConnectionHandler(h) = handler;
 		if defaultChannels.last().map(|s| !s.is_empty()).unwrap_or(false) {
 			defaultChannels.push(String::new());
 		};
@@ -495,7 +496,6 @@ impl TS3Functions {
 			.iter()
 			.map(|s| s.as_ptr())
 			.collect();
-
 		let ptr_channels: *const *const c_char = if channel_ptrs.is_empty() {
 			::std::ptr::null()
 		} else {
@@ -533,7 +533,7 @@ impl TS3Functions {
 
 		let message_cstr = CString::new(quit_message).unwrap();
 		let err = (self.stopConnection)(
-			handler.inot(), 
+			handler.into(), 
 			message_cstr.as_ptr());
 
 		let err = Error::from(err);
