@@ -1,6 +1,25 @@
 use std::ffi::CStr;
 use ::definitions::*;
 
+pub struct Invoker {
+	id:				u16,
+	name:			String,
+	unique_id:		String,
+}
+
+impl Inovker {
+	pub fn new(id: c_ushort, name: *const c_char, unique_id: *const c_char) -> Invoker {
+		let m_id = id as u16;
+		let name_str = CString::new(name).unwrap().to_string();
+		let unique_id_str = CString::new(unqiue_id).unwrap().to_string();
+		Inovker {
+			id:			m_id,
+			name:		name_str,
+			unqiue_id:	unqieu_id_str,
+		}
+	}
+}
+
 pub trait PluginDescription {
 	const NAME: &'static str;
 	const VERSION: &'static str;
@@ -21,12 +40,12 @@ pub trait Plugin: ::std::marker::Sync {
 	fn on_new_channel_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, channel_parent_id: u64) {
 	}
 
-	fn on_new_channel_created_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, invoker_id: u16, invoker_name: String, invoker_unique_id: String) {
+	fn on_new_channel_created_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, invoker: Invoker) {
 	}
 
-	fn on_del_channel_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, invoker_id: u16, invoker_name: String, invoker_unique_id: String)  {
+	fn on_del_channel_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, invoker: Invoker)  {
 	}
 
-	fn on_channel_move_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, new_parent_id: u64, invoker_id: u16, invoker_name: String, invoker_unique_id: String) {
+	fn on_channel_move_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, new_parent_id: u64, invoker: Invoker) {
 	}
 }

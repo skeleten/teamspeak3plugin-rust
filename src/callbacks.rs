@@ -24,6 +24,16 @@ pub unsafe fn ts3plugin_onConnectStatusChangeEvent(server_handler_id: c_ulong, n
 #[no_mangle]
 pub unsafe fn ts3plugin_onNewChannelEvent(server_handler_id: c_ulong, channel_id: c_ulong, channel_parent_id: c_ulong) {
 	// TODO
+	let mut singleton = ::state::singleton();
+	let mut guard = singleton.lock().unwrap();
+
+	if let Some(ref mut p) = *guard {
+		let handler = ServerConnectionHandler(server_handler_id as u64);
+		p.on_new_channel_event(
+			handler,
+			channel_id as u64,
+			channel_parent_id as u64);
+	}
 }
 
 #[no_mangle]
