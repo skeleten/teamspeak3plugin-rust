@@ -579,7 +579,14 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn request_client_kick_from_server(&self, handler: ServerConnectionHandler, clientId: u16, reason: String, returnCode: String) -> Result<(), Error> {
+	pub unsafe fn request_client_kick_from_server(
+				&self, 
+				handler: ServerConnectionHandler, 
+				clientId: u16, 
+				reason: String, 
+				returnCode: String
+			) -> Result<(), Error> {
+
 		let ServerConnectionHandler(h) = handler;
 		let reason_cstr = CString::new(reason).unwrap();
 		let ret_empty = returnCode.is_empty();
@@ -590,7 +597,12 @@ impl TS3Functions {
 			returnCode_cstr.as_ptr()
 		};
 
-		let err = (self.requestClientKickFromServer)(h as c_ulong, clientId as c_ushort, reason_cstr.as_ptr(), returnCode_ptr);
+		let err = (self.requestClientKickFromServer)(
+			h as c_ulong, 
+			clientId as c_ushort, 
+			reason_cstr.as_ptr(), 
+			returnCode_ptr);
+		
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -599,9 +611,21 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn request_channel_delete(&self, handler: ServerConnectionHandler, channel_id: u64, force: i32, return_code: String) -> Result<(), Error> {
+	pub unsafe fn request_channel_delete(
+				&self, 
+				handler: ServerConnectionHandler, 
+				channel_id: u64, 
+				force: i32, 
+				return_code: String
+			) -> Result<(), Error> {
+
 		let return_code_cstr = CString::new(return_code).unwrap();
-		let err = (self.requestChannelDelete)(handler.into(), channel_id as c_ulong, force as c_int, return_code_cstr.as_ptr());
+		let err = (self.requestChannelDelete)(
+			handler.into(), 
+			channel_id as c_ulong, 
+			force as c_int, 
+			return_code_cstr.as_ptr());
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -610,11 +634,23 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn request_send_private_text_msg(&self, handler: ServerConnectionHandler, message: String, client_id: u16, return_code: String) -> Result<(), Error> {
+	pub unsafe fn request_send_private_text_msg(
+				&self, 
+				handler: ServerConnectionHandler, 
+				message: String, 
+				client_id: u16, 
+				return_code: String
+			) -> Result<(), Error> {
+
 		let message_cstr = CString::new(message).unwrap();
 		let return_code_cstr = CString::new(return_code).unwrap();
 
-		let err = (self.requestSendPrivateTextMsg)(handler.into(), message_cstr.as_ptr(), client_id as c_short, return_code_cstr.as_ptr());
+		let err = (self.requestSendPrivateTextMsg)(
+			handler.into(), 
+			message_cstr.as_ptr(), 
+			client_id as c_short, 
+			return_code_cstr.as_ptr());
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -623,11 +659,23 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn request_send_channel_text_msg(&self, handler: ServerConnectionHandler, message: String, target_channel_id: u16, return_code: String) -> Result<(), Error> {
+	pub unsafe fn request_send_channel_text_msg(
+				&self, 
+				handler: ServerConnectionHandler, 
+				message: String, 
+				target_channel_id: u16, 
+				return_code: String
+			) -> Result<(), Error> {
+
 		let message_cstr = CString::new(message).unwrap();
 		let return_code_cstr = CString::new(return_code).unwrap();
 
-		let err = (self.requestSendChannelTextMsg)(handler.into(), message_cstr.as_ptr(), target_channel_id as c_uint, return_code_cstr.as_ptr());
+		let err = (self.requestSendChannelTextMsg)(
+			handler.into(), 
+			message_cstr.as_ptr(), 
+			target_channel_id as c_uint, 
+			return_code_cstr.as_ptr());
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -636,11 +684,20 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn request_send_server_text_msg(&self, handler: ServerConnectionHandler, message: String, return_code: String) -> Result<(), Error> {
+	pub unsafe fn request_send_server_text_msg(
+				&self, handler: ServerConnectionHandler, 
+				message: String, 
+				return_code: String
+			) -> Result<(), Error> {
+
 		let message_cstr = CString::new(message).unwrap();
 		let return_code_cstr = CString::new(return_code).unwrap();
 
-		let err = (self.requestSendServerTextMsg)(handler.into(), message_cstr.as_ptr(), return_code_cstr.as_ptr());
+		let err = (self.requestSendServerTextMsg)(
+			handler.into(), 
+			message_cstr.as_ptr(), 
+			return_code_cstr.as_ptr());
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -649,10 +706,20 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn request_connection_info(&self, handler: ServerConnectionHandler, client_id: u16, return_code: String) -> Result<(), Error> {
+	pub unsafe fn request_connection_info(
+				&self, 
+				handler: ServerConnectionHandler, 
+				client_id: u16, 
+				return_code: String
+			) -> Result<(), Error> {
+
 		let return_code_cstr = CString::new(return_code).unwrap();
 
-		let err = (self.requestConnectionInfo)(handler.into(), client_id as c_short, return_code_cstr.as_ptr());
+		let err = (self.requestConnectionInfo)(
+			handler.into(), 
+			client_id as c_short, 
+			return_code_cstr.as_ptr());
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -669,8 +736,16 @@ impl TS3Functions {
 				return_code: String
 			) -> Result<(), Error> {
 
-		let target_chan_ids_c: Vec<c_ulong> = target_channel_ids.into_iter().map(|id| id as c_ulong).collect();
-		let target_client_ids_c: Vec<c_short> = target_client_ids.into_iter().map(|id| id as c_short).collect();
+		let target_chan_ids_c: Vec<c_ulong> = 
+			target_channel_ids
+			.into_iter()
+			.map(|id| id as c_ulong)
+			.collect();
+		let target_client_ids_c: Vec<c_short> = 
+			target_client_ids
+			.into_iter()
+			.map(|id| id as c_short)
+			.collect();
 		let return_code_cstr = CString::new(return_code).unwrap();
 
 		let err = (self.requestClientSetWhisperList)(
@@ -689,21 +764,25 @@ impl TS3Functions {
 	}
 
 	pub unsafe fn request_channel_subscribe(
-			&self, 
-			handler: ServerConnectionHandler, 
-			channel_ids: Vec<u64>, 
-			return_code: String
-		) -> Result<(), Error> {
+				&self, 
+				handler: ServerConnectionHandler, 
+				channel_ids: Vec<u64>, 
+				return_code: String
+			) -> Result<(), Error> {
 
-		let channel_ids_c: Vec<c_ulong> = channel_ids.into_iter().map(|id| id as c_ulong).collect();
-		let return_code_cstr  = CString::new(return_code).unwarp();
+		let channel_ids_c: Vec<c_ulong> = 
+			channel_ids
+			.into_iter()
+			.map(|id| id as c_ulong)
+			.collect();
+		let return_code_cstr  = CString::new(return_code).unwrap();
 
 		let err = (self.requestChannelSubscribe)(
 			handler.into(),
 			channel_ids_c.as_ptr(),
 			return_code_cstr.as_ptr());
 		let err = Error::from(err);
-		if err = Error::ERROR_ok {
+		if err == Error::ERROR_ok {
 			Ok(())
 		} else {
 			Err(err)
