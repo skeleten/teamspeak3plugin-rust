@@ -478,15 +478,24 @@ impl TS3Functions {
 				nickname: String, 
 				defaultChannels: &mut Vec<String>, 
 				defaultChannelPw: String, 
-				serverPw: String) 
-					-> Result<(), Error> {
+				serverPw: String
+			) -> Result<(), Error> {
 
-		let ServerConnectionHandler(h) = handler;
 		if defaultChannels.last().map(|s| !s.is_empty()).unwrap_or(false) {
 			defaultChannels.push(String::new());
 		};
-		let channels: Vec<CString> = defaultChannels.into_iter().map(|s| CString::new(&**s).unwrap()).collect();
-		let channel_ptrs: Vec<*const c_char> = channels.iter().map(|s| s.as_ptr()).collect();
+		let channels: Vec<CString> = 
+			defaultChannels
+			.into_iter()
+			.map(|s| CString::new(&**s).unwrap())
+			.collect();
+
+		let channel_ptrs: Vec<*const c_char> = 
+			channels
+			.iter()
+			.map(|s| s.as_ptr())
+			.collect();
+
 		let ptr_channels: *const *const c_char = if channel_ptrs.is_empty() {
 			::std::ptr::null()
 		} else {
@@ -516,10 +525,17 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn stop_connection(&self, handler: ServerConnectionHandler, quit_message: String) -> Result<(), Error> {
-		let ServerConnectionHandler(h) = handler;
+	pub unsafe fn stop_connection(
+				&self, 
+				handler: ServerConnectionHandler, 
+				quit_message: String
+			) -> Result<(), Error> {
+
 		let message_cstr = CString::new(quit_message).unwrap();
-		let err = (self.stopConnection)(h as c_ulong, message_cstr.as_ptr());
+		let err = (self.stopConnection)(
+			handler.inot(), 
+			message_cstr.as_ptr());
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -528,7 +544,15 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn request_client_move(&self, handler: ServerConnectionHandler, clientId: u16, newChannelId: u64, password: String, returnCode: String) -> Result<(), Error> {
+	pub unsafe fn request_client_move(
+				&self, 
+				handler: ServerConnectionHandler, 
+				clientId: u16, 
+				newChannelId: u64, 
+				password: String, 
+				returnCode: String
+			) -> Result<(), Error> {
+
 		let ServerConnectionHandler(h) = handler;
 		let password_cstr = CString::new(password).unwrap();
 		let return_empty = returnCode.is_empty();
@@ -539,7 +563,13 @@ impl TS3Functions {
 			return_code_cstr.as_ptr()
 		};
 
-		let err = (self.requestClientMove)(h as c_ulong, clientId as c_ushort, newChannelId as c_ulong, password_cstr.as_ptr(), reutrn_code_ptr);
+		let err = (self.requestClientMove)(
+			h as c_ulong, 
+			clientId as c_ushort, 
+			newChannelId as c_ulong, 
+			password_cstr.as_ptr(), 
+			reutrn_code_ptr);
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -548,10 +578,19 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn request_client_variables(&self, handler: ServerConnectionHandler, clientId: u16, returnCode: String) -> Result<(), Error> {
-		let ServerConnectionHandler(h) = handler;
+	pub unsafe fn request_client_variables(
+				&self, 
+				handler: ServerConnectionHandler, 
+				clientId: u16, 
+				returnCode: String
+			) -> Result<(), Error> {
+
 		let returnCode_cstr = CString::new(returnCode).unwrap();
-		let err = (self.requestClientVariables)(h as c_ulong, clientId as c_ushort, returnCode_cstr.as_ptr());
+		let err = (self.requestClientVariables)(
+			handler.into(), 
+			clientId as c_ushort, 
+			returnCode_cstr.as_ptr());
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -560,7 +599,14 @@ impl TS3Functions {
 		}
 	}	
 
-	pub unsafe fn request_client_kick_from_channel(&self, handler: ServerConnectionHandler, clientId: u16, reason: String, returnCode: String) -> Result<(), Error> {
+	pub unsafe fn request_client_kick_from_channel(
+				&self, 
+				handler: ServerConnectionHandler, 
+				clientId: u16, 
+				reason: String, 
+				returnCode: String
+			) -> Result<(), Error> {
+
 		let reason_cstr = CString::new(reason).unwrap();
 		let ret_is_null = returnCode.is_empty();
 		let returnCode_cstr = CString::new(returnCode).unwrap();
@@ -570,7 +616,12 @@ impl TS3Functions {
 			returnCode_cstr.as_ptr()
 		};
 		let ServerConnectionHandler(h) = handler;
-		let err = (self.requestClientKickFromChannel)(h as c_ulong, clientId as c_ushort, reason_cstr.as_ptr(), returnCode_ptr);
+		let err = (self.requestClientKickFromChannel)(
+			h as c_ulong, 
+			clientId as c_ushort, 
+			reason_cstr.as_ptr(), 
+			returnCode_ptr);
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
@@ -602,7 +653,7 @@ impl TS3Functions {
 			clientId as c_ushort, 
 			reason_cstr.as_ptr(), 
 			returnCode_ptr);
-		
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
 			Ok(())
