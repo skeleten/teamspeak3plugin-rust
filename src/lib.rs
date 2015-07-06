@@ -1,5 +1,3 @@
-// src/lib.rs
-// #![crate_type = "dylib"]
 #![feature(associated_consts)]
 #![allow(dead_code)]
 #![allow(non_camel_case_types)]
