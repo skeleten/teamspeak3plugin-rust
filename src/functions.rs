@@ -661,14 +661,49 @@ impl TS3Functions {
 		}
 	}
 
-	pub unsafe fn request_client_set_whisper_list(&self, handler: ServerConnectionHandler, client_id: u16, target_channel_ids: Vec<u64>, target_client_ids: Vec<u16>, return_code: String) -> Result<(), Error> {
+	pub unsafe fn request_client_set_whisper_list(
+				&self, handler: ServerConnectionHandler, 
+				client_id: u16, 
+				target_channel_ids: Vec<u64>, 
+				target_client_ids: Vec<u16>, 
+				return_code: String
+			) -> Result<(), Error> {
+
 		let target_chan_ids_c: Vec<c_ulong> = target_channel_ids.into_iter().map(|id| id as c_ulong).collect();
 		let target_client_ids_c: Vec<c_short> = target_client_ids.into_iter().map(|id| id as c_short).collect();
 		let return_code_cstr = CString::new(return_code).unwrap();
 
-		let err = (self.requestClientSetWhisperList)(handler.into(), client_id as c_short, target_chan_ids_c.as_ptr(), target_client_ids_c.as_ptr(), return_code_cstr.as_ptr());
+		let err = (self.requestClientSetWhisperList)(
+				handler.into(), 
+				client_id as c_short, 
+				target_chan_ids_c.as_ptr(), 
+				target_client_ids_c.as_ptr(), 
+				return_code_cstr.as_ptr());
+
 		let err = Error::from(err);
 		if err == Error::ERROR_ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
+
+	pub unsafe fn request_channel_subscribe(
+			&self, 
+			handler: ServerConnectionHandler, 
+			channel_ids: Vec<u64>, 
+			return_code: String
+		) -> Result<(), Error> {
+
+		let channel_ids_c: Vec<c_ulong> = channel_ids.into_iter().map(|id| id as c_ulong).collect();
+		let return_code_cstr  = CString::new(return_code).unwarp();
+
+		let err = (self.requestChannelSubscribe)(
+			handler.into(),
+			channel_ids_c.as_ptr(),
+			return_code_cstr.as_ptr());
+		let err = Error::from(err);
+		if err = Error::ERROR_ok {
 			Ok(())
 		} else {
 			Err(err)
