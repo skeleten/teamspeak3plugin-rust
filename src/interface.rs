@@ -1,5 +1,7 @@
 use std::ffi::CStr;
 use ::definitions::*;
+use libc::*;
+use std::ffi::CString;
 
 pub struct Invoker {
 	id:				u16,
@@ -7,15 +9,15 @@ pub struct Invoker {
 	unique_id:		String,
 }
 
-impl Inovker {
+impl Invoker {
 	pub fn new(id: c_ushort, name: *const c_char, unique_id: *const c_char) -> Invoker {
 		let m_id = id as u16;
 		let name_str = CString::new(name).unwrap().to_string();
-		let unique_id_str = CString::new(unqiue_id).unwrap().to_string();
-		Inovker {
+		let unique_id_str = CString::new(unique_id).unwrap().to_string();
+		Invoker {
 			id:			m_id,
 			name:		name_str,
-			unqiue_id:	unqieu_id_str,
+			unique_id:	unique_id_str,
 		}
 	}
 }

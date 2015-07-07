@@ -99,6 +99,13 @@ impl Into<c_ulong> for ServerConnectionHandler {
 	}
 }
 
+impl Into<u64> for ServerConnectionHandler {
+	fn into(self) -> u64 {
+		let ServerConnectionHandler(h) = self;
+		h
+	}
+}
+
 pub struct UserHandler(pub u16);
 
 impl Into<c_ushort> for UserHandler {
