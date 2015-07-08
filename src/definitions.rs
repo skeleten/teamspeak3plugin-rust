@@ -6,7 +6,7 @@ pub const PLUGIN_MENU_BUFSZ: usize = 128;
 pub enum PluginConfigureOffer {
 	PLUGIN_OFFERS_NO_CONFIGURE,
 	PLUGIN_OFFERS_CONFIGURE_NEW_THREAD,
-	PLUGIN_OOFERS_CONFIGURE_QT_THREAD,
+	PLUGIN_OFFERS_CONFIGURE_QT_THREAD,
 }
 
 pub enum PluginMessageTarget {
@@ -52,6 +52,7 @@ pub struct PluginBookmarkItem {
 	isFolder:		c_uchar,
 	reserved:		[c_uchar; 3],
 	// union this ?!?
+	// TODO: create struct w/ the fixed size (no idea what size it really is, but oh well)
 	// name_2:			[c_char; 1],
 	folder:			*mut PluginBookmarkList,
 }
@@ -69,20 +70,25 @@ pub const TS3_MAX_SIZE_VIRTUALSERVER_NAME: usize			= 64;
 pub const TS3_MAX_SIZE_CLIENT_NICKNAME: usize				= 64;
 pub const TS3_MIN_SIZE_CLIENT_NICKNAME: usize				= 3;
 pub const TS3_MAX_SIZE_REASON_MESSAGE: usize				= 80;
-
 pub const TS3_MAX_SIZE_TEXTMESSAGE: usize					= 1024;
 
 
 // TODO
 
-
+/// Logging level, for use with the function ```functions::TS3Functions::logMessage```
 pub enum LogLevel {
-	LogLevel_CRITICAL = 0, //these messages stop the program
-	LogLevel_ERROR,        //everything that is really bad, but not so bad we need to shut down
-	LogLevel_WARNING,      //everything that *might* be bad
-	LogLevel_DEBUG,        //output that might help find a problem
-	LogLevel_INFO,         //informational output, like "starting database version x.y.z"
-	LogLevel_DEVEL         //developer only output (will not be displayed in release mode)
+	/// These messages stop the program
+	LogLevel_CRITICAL = 0,
+	/// Everything that is really bad, but not so bad we need to shut down
+	LogLevel_ERROR,
+	/// Everything that *might* be bad
+	LogLevel_WARNING,
+	/// Output that might help find a problem
+	LogLevel_DEBUG,
+	/// Informational output, like "starting database version x.y.z"
+	LogLevel_INFO,
+	/// Developer only output (will not be displayed in release mode)
+	LogLevel_DEVEL
 }
 
 
@@ -92,6 +98,7 @@ pub enum LogLevel {
 // newtypes
 pub struct ServerConnectionHandler(pub u64);
 
+
 impl Into<c_ulong> for ServerConnectionHandler {
 	fn into(self) -> c_ulong {
 		let ServerConnectionHandler(h) = self;
@@ -99,12 +106,12 @@ impl Into<c_ulong> for ServerConnectionHandler {
 	}
 }
 
-impl Into<u64> for ServerConnectionHandler {
-	fn into(self) -> u64 {
-		let ServerConnectionHandler(h) = self;
-		h
+impl From<c_ulong> for ServerConnectionHandler {
+	fn from(data: c_ulong) -> Self {
+		ServerConnectionHandler(data as u64)
 	}
 }
+
 
 pub struct UserHandler(pub u16);
 

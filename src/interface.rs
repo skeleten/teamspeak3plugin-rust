@@ -12,8 +12,10 @@ pub struct Invoker {
 impl Invoker {
 	pub fn new(id: c_ushort, name: *const c_char, unique_id: *const c_char) -> Invoker {
 		let m_id = id as u16;
-		let name_str = CString::new(name).unwrap().to_string();
-		let unique_id_str = CString::new(unique_id).unwrap().to_string();
+		let name_cstr = unsafe { CStr::from_ptr(name) };
+		let name_str = String::from_utf8_lossy(name_cstr.to_bytes()).into_owned();
+		let unique_id_cstr = unsafe { CStr::from_ptr(unique_id) };
+		let unique_id_str = String::from_utf8_lossy(unique_id_cstr.to_bytes()).into_owned();
 		Invoker {
 			id:			m_id,
 			name:		name_str,
@@ -42,7 +44,7 @@ pub trait Plugin: ::std::marker::Sync {
 	fn on_new_channel_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, channel_parent_id: u64) {
 	}
 
-	fn on_new_channel_created_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, invoker: Invoker) {
+	fn on_new_channel_created_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, channel_parent_id: u64, invoker: Invoker) {
 	}
 
 	fn on_del_channel_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, invoker: Invoker)  {

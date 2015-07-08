@@ -484,9 +484,8 @@ impl TS3Functions {
 				modifier: f32
 			) -> Result<(), Error> {
 
-		let ServerConnectionHandler(h) = handler;
 		let err = (self.setClientVolumeModifier)(
-			h.into(), 
+			handler.into(), 
 			client_id as c_ushort, 
 			modifier as c_float);
 
