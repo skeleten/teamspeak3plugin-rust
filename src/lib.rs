@@ -21,6 +21,7 @@ use std::fs::File;
 use std::sync::{Arc,Mutex};
 
 pub use functions::TS3Functions;
+pub use callbacks::*;
 pub use interface::*;
 // pub use callbacks::*; // empty atm.
 pub use definitions::*;
@@ -29,6 +30,37 @@ pub use state::*;
 #[macro_export]
 macro_rules! teamspeak3_plugin {
 	($t:ty) => (
+
+		fn register_plugin() {
+			use std::sync::{Arc, Mutex};
+
+			let has_plugin = { let mut inni = ::ts3plugin::singleton();
+			let mut guard = inni.plugin.lock().unwrap();
+			if let Some(ref mut plugin) = *guard {
+					true
+				} else {
+					false
+				} 
+			};
+			if !has_plugin {
+				let mut instance = <$t>::create_instance();
+				let mut inni = ::ts3plugin::singleton();
+				let mut data = inni.plugin.lock().unwrap();
+				*data = Some(instance);
+			}
+		}
+
+		fn log_message(msg: &str) {
+			let mut file = std::fs::OpenOptions::new()
+				.read(true)
+				.write(true)
+				.append(true)
+				.create(true)
+				.open("C:\\tmp\\log.txt").ok().unwrap();
+			file.write(msg.as_bytes());
+			file.write(b"\n");
+		}
+
 		#[no_mangle]
 		#[allow(non_snake_case)]
 		pub fn ts3plugin_name() -> *const libc::c_char {
@@ -69,22 +101,22 @@ macro_rules! teamspeak3_plugin {
 			use std::sync::{Arc,Mutex};
 			// ::ts3plugin::singleton()::plugin is of type
 			// Arc<Mutex<Option<Plugin>>>
+			log_message("ts3plugin_setFunctionPointers()");
+
+			register_plugin();
+
 			let inni = ::ts3plugin::singleton();
 			let mut guard = inni.plugin.lock().unwrap();
 			if let Some(ref mut plugin) = *guard {
-				plugin.register_client_functions(fs).ok();
-			} else {
-				panic!("no plugin found!");
+				plugin.register_client_functions(fs);
+				log_message("registered function pointers");
 			}
 		}
 
 		#[no_mangle]
 		#[allow(non_snake_case)]
 		pub fn ts3plugin_init() -> libc::c_int {
-			use std::sync::{Arc,Mutex};
-			let mut instance = <$t>::create_instance();
-			instance.init().ok();
-			::ts3plugin::singleton().plugin = Arc::new(Mutex::new(Some(instance)));
+			log_message("ts3plugin_init()");
 
 			0
 		}
@@ -93,6 +125,11 @@ macro_rules! teamspeak3_plugin {
 		#[allow(non_snake_case)]
 		pub fn ts3plugin_shutdown() {
 			// free stuff here?
+			let singleton = ::ts3plugin::singleton();
+			let mut guard = (*singleton.plugin).lock().unwrap();
+			if let Some(ref mut plugin) = *guard {
+				plugin.shutdown().ok();
+			}
 		}
 	);
 }

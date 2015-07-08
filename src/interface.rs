@@ -35,7 +35,9 @@ pub trait PluginDescription {
 }
 
 pub trait Plugin: ::std::marker::Sync {
-	fn init(&self) -> Result<(), ()>;
+	fn init(&mut self) -> Result<(), ()>;
+	fn shutdown(&mut self) -> Result<(), ()>;
+	
 	fn register_client_functions(&mut self, funcs: ::TS3Functions) -> Result<(), ()>;
 
 	fn on_connect_status_change_event(&mut self, handler: ServerConnectionHandler, new_status: i32, error_number: u32) {
