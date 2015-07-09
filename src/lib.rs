@@ -31,11 +31,11 @@ macro_rules! teamspeak3_plugin {
 		fn register_plugin() {
 			let has_plugin = { 
 				let inni = ::ts3plugin::singleton();
-				let mut guard = inni.plugin.lock().unwrap();
+				let guard = inni.plugin.lock().unwrap();
 				(*guard).is_some()
 			};
 			if !has_plugin {
-				let mut instance = <$t>::create_instance();
+				let instance = <$t>::create_instance();
 				let inni = ::ts3plugin::singleton();
 				let mut data = inni.plugin.lock().unwrap();
 				*data = Some(instance);
@@ -79,14 +79,12 @@ macro_rules! teamspeak3_plugin {
 		#[no_mangle]
 		#[allow(non_snake_case)]
 		pub unsafe fn ts3plugin_setFunctionPointers(fs: ::ts3plugin::TS3Functions) {
-			use std::sync::{Arc,Mutex};
-
 			register_plugin();
 
 			let inni = ::ts3plugin::singleton();
 			let mut guard = inni.plugin.lock().unwrap();
 			if let Some(ref mut plugin) = *guard {
-				plugin.register_client_functions(fs);
+				plugin.register_client_functions(fs).ok();
 			}
 		}
 
