@@ -100,3 +100,31 @@ pub unsafe fn ts3plugin_onChannelMoveEvent(
 			invoker);
 	}
 }
+
+// few more
+
+#[no_mangle]
+pub unsafe fn ts3plugin_onClientMoveEvent(
+	handler: c_ulong,
+	client_id: c_ushort,
+	old_channel_id: c_ulong,
+	new_channel_id: c_ulong,
+	visibility: c_int,
+	move_message: *const c_char) {
+
+	let handler = ServerConnectionHandler::from(handler);
+	let move_message_cstr = CStr::from_ptr(move_message);
+	let move_message_str = String::from_utf8_lossy(move_message_cstr.to_bytes()).into_owned();
+
+	let singleton = ::state::singleton();
+	let mut guard = singleton.plugin.lock().unwrap();
+	if let Some(ref mut plugin) = *guard {
+		plugin.on_client_move_event(
+			handler,
+			client_id as u16,
+			old_channel_id as u64,
+			new_channel_id as u64,
+			visibility as i32,
+			move_message_str);
+	}
+}

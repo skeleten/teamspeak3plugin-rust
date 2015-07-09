@@ -68,6 +68,12 @@ pub struct TS3Functions {
 	startVoiceRecording:						extern fn(c_ulong) -> c_uint,
 	stopVoiceRecording:							extern fn(c_ulong) -> c_uint,
 
+	// 3D sound positioning
+	systemset3DListenerAttributes:				extern fn(c_ulong, *const TS3_VECTOR, *const TS3_VECTOR, *const TS3_VECTOR) -> c_uint,
+	set3DWaveAttributes:						extern fn(c_ulong, c_ulong, *const TS3_VECTOR) -> c_uint,
+	systemset3DSettings:						extern fn(c_ulong, c_float, c_float) -> c_uint,
+	channelset3DAttributes:						extern fn(c_ulong, c_ushort, *const TS3_VECTOR) -> c_uint,
+
 	// interaction with the server
 	startConnection:							extern fn(c_ulong, *const c_char, *const c_char, c_uint, *const c_char, *const *const c_char, *const c_char, *const c_char) -> c_uint,
 	stopConnection:								extern fn(c_ulong, *const c_char) -> c_uint,
@@ -238,6 +244,7 @@ pub struct TS3Functions {
 	getPluginPath:								extern fn(*mut c_char, size_t),
 	getCurrentServerConnectionHandlerID: 		extern fn() -> c_ulong,
 	printMessage:								extern fn(c_ulong, *const c_char, PluginMessageTarget),
+	printMessageToCurrentTab:					extern fn(*const c_char),
 	urlsToBB:									extern fn(*const c_char, *mut c_char, size_t),
 	sendPluginCommand:							extern fn(c_ulong, *const c_char, *const c_char, c_int, *const c_short, *const c_char),
 	getDirectories:								extern fn(*const c_char, *mut c_char, size_t),
@@ -890,5 +897,12 @@ impl TS3Functions {
 		} else {
 			Err(err)
 		}
+	}
+
+	// Client functions (TODO)
+
+	pub unsafe fn print_message_to_current_tab(&self, message: String) {
+		let message_cstr = CString::new(message).unwrap();
+		(self.printMessageToCurrentTab)(message_cstr.as_ptr());
 	}
 }

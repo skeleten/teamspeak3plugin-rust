@@ -91,6 +91,12 @@ pub enum LogLevel {
 	LogLevel_DEVEL
 }
 
+pub struct TS3_VECTOR {
+	x:		c_float,
+	y:		c_float,
+	z:		c_float,
+}
+
 
 // own stuff
 

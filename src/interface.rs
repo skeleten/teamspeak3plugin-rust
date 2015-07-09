@@ -54,4 +54,10 @@ pub trait Plugin: ::std::marker::Sync {
 
 	fn on_channel_move_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, new_parent_id: u64, invoker: Invoker) {
 	}
+
+	// few more
+
+	fn on_client_move_event(&mut self, handler: ServerConnectionHandler, client_id: u16, old_channel_id: u64, new_channel_id: u64, visibility: i32, move_message: String) {
+
+	}
 }
