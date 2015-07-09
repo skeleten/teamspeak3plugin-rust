@@ -27,7 +27,7 @@ pub fn singleton() -> SingletonReader {
 
             // Make sure to free heap memory at exit
             /* This doesn't exist in stable 1.0, so we will just leak it!
-            rt::at_exit(|| {
+            std::rt::at_exit(|| {
                 let singleton: Box<SingletonReader> = mem::transmute(SINGLETON);
 
                 // Let's explictly free the memory for this example
@@ -35,7 +35,7 @@ pub fn singleton() -> SingletonReader {
 
                 // Set it to null again. I hope only one thread can call `at_exit`!
                 SINGLETON = 0 as *const _;
-            });
+            }); 
             */
         });
 

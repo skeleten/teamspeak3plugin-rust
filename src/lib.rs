@@ -14,8 +14,6 @@ mod callbacks;
 mod state;
 
 use std::ffi::CString;
-// use libc;
-
 use std::io::prelude::*;
 use std::fs::File;
 use std::sync::{Arc,Mutex};
@@ -23,7 +21,6 @@ use std::sync::{Arc,Mutex};
 pub use functions::TS3Functions;
 pub use callbacks::*;
 pub use interface::*;
-// pub use callbacks::*; // empty atm.
 pub use definitions::*;
 pub use state::*;
 
@@ -48,17 +45,6 @@ macro_rules! teamspeak3_plugin {
 				let mut data = inni.plugin.lock().unwrap();
 				*data = Some(instance);
 			}
-		}
-
-		fn log_message(msg: &str) {
-			let mut file = std::fs::OpenOptions::new()
-				.read(true)
-				.write(true)
-				.append(true)
-				.create(true)
-				.open("C:\\tmp\\log.txt").ok().unwrap();
-			file.write(msg.as_bytes());
-			file.write(b"\n");
 		}
 
 		#[no_mangle]
@@ -99,9 +85,6 @@ macro_rules! teamspeak3_plugin {
 		#[allow(non_snake_case)]
 		pub unsafe fn ts3plugin_setFunctionPointers(fs: ::ts3plugin::TS3Functions) {
 			use std::sync::{Arc,Mutex};
-			// ::ts3plugin::singleton()::plugin is of type
-			// Arc<Mutex<Option<Plugin>>>
-			log_message("ts3plugin_setFunctionPointers()");
 
 			register_plugin();
 
@@ -109,16 +92,22 @@ macro_rules! teamspeak3_plugin {
 			let mut guard = inni.plugin.lock().unwrap();
 			if let Some(ref mut plugin) = *guard {
 				plugin.register_client_functions(fs);
-				log_message("registered function pointers");
 			}
 		}
 
 		#[no_mangle]
 		#[allow(non_snake_case)]
 		pub fn ts3plugin_init() -> libc::c_int {
-			log_message("ts3plugin_init()");
-
-			0
+			let inni = ::ts3plugin::singleton();
+			let mut guard = inni.plugin.lock().unwrap();
+			if let Some(ref mut plugin) = *guard {
+				match plugin.init() {
+					Ok(_)		=>	0,
+					Err(_)		=>	1,
+				}
+			} else {
+				1
+			}
 		}
 
 		#[no_mangle]
