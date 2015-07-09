@@ -29,19 +29,14 @@ macro_rules! teamspeak3_plugin {
 	($t:ty) => (
 
 		fn register_plugin() {
-			use std::sync::{Arc, Mutex};
-
-			let has_plugin = { let mut inni = ::ts3plugin::singleton();
-			let mut guard = inni.plugin.lock().unwrap();
-			if let Some(ref mut plugin) = *guard {
-					true
-				} else {
-					false
-				} 
+			let has_plugin = { 
+				let inni = ::ts3plugin::singleton();
+				let mut guard = inni.plugin.lock().unwrap();
+				(*guard).is_some()
 			};
 			if !has_plugin {
 				let mut instance = <$t>::create_instance();
-				let mut inni = ::ts3plugin::singleton();
+				let inni = ::ts3plugin::singleton();
 				let mut data = inni.plugin.lock().unwrap();
 				*data = Some(instance);
 			}
