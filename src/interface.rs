@@ -11,7 +11,7 @@ pub struct Invoker {
 }
 
 impl Invoker {
-	/// Creates a new Invoker structure by converting the libc-types
+	/// Creates a new Invoker structure by converting the `libc`-types and raw pointers
 	pub fn new(id: c_ushort, name: *const c_char, unique_id: *const c_char) -> Invoker {
 		let m_id = id as u16;
 		let name_cstr = unsafe { CStr::from_ptr(name) };
@@ -41,7 +41,7 @@ pub trait PluginDescription {
 // we allow unused variables for the function-prototypes here
 #[allow(unused_variables)]
 /// Core trait of any plugin.
-/// the functions ```init``` as well as ```shutdown``` have to be implemented
+/// the functions `init` as well as `shutdown` have to be implemented
 /// the rest serve as callbacks and have a default empty implementation
 pub trait Plugin: ::std::marker::Sync {
 	fn init(&mut self) -> Result<(), ()>;
