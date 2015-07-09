@@ -11,7 +11,7 @@ use ::interface::*;
 pub unsafe fn ts3plugin_onConnectStatusChangeEvent(server_handler_id: c_ulong, newStatus: c_int, errorNumber: c_uint) {
 	// TODO
 
-	let mut singleton = ::state::singleton();
+	let singleton = ::state::singleton();
 	let mut guard = singleton.plugin.lock().unwrap();
 
 	if let Some(ref mut p) = *guard {
@@ -46,7 +46,7 @@ pub unsafe fn ts3plugin_onNewChannelCreatedEvent(
 			invoker_name: *const c_char, 
 			invoker_uniq_ident: *const c_char) {
 
-	let mut singleton = ::state::singleton();
+	let singleton = ::state::singleton();
 	let mut guard = (*singleton.plugin).lock().unwrap();
 	if let Some(ref mut plugin) = *guard {
 		let handler = ServerConnectionHandler::from(server_handler_id);

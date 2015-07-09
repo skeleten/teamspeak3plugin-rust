@@ -34,6 +34,7 @@ pub trait PluginDescription {
 	fn create_instance() -> Box<Plugin>;
 }
 
+#[allow(unused_variables)]
 pub trait Plugin: ::std::marker::Sync {
 	fn init(&mut self) -> Result<(), ()>;
 	fn shutdown(&mut self) -> Result<(), ()>;
