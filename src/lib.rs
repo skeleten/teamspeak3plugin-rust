@@ -19,6 +19,7 @@ use std::fs::File;
 use std::sync::{Arc,Mutex};
 
 pub use functions::TS3Functions;
+pub use errors::Error;
 pub use callbacks::*;
 pub use interface::*;
 pub use definitions::*;

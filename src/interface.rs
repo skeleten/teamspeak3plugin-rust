@@ -3,6 +3,7 @@ use ::definitions::*;
 use libc::*;
 use std::ffi::CString;
 
+/// Invoker of a request
 pub struct Invoker {
 	id:				u16,
 	name:			String,
@@ -10,6 +11,7 @@ pub struct Invoker {
 }
 
 impl Invoker {
+	/// Creates a new Invoker structure by converting the libc-types
 	pub fn new(id: c_ushort, name: *const c_char, unique_id: *const c_char) -> Invoker {
 		let m_id = id as u16;
 		let name_cstr = unsafe { CStr::from_ptr(name) };
@@ -24,6 +26,8 @@ impl Invoker {
 	}
 }
 
+/// Trait that has to be implemented by a plugin.
+/// It determines the display values, just as Name, Author, etc.
 pub trait PluginDescription {
 	const NAME: &'static str;
 	const VERSION: &'static str;
@@ -34,7 +38,11 @@ pub trait PluginDescription {
 	fn create_instance() -> Box<Plugin>;
 }
 
+// we allow unused variables for the function-prototypes here
 #[allow(unused_variables)]
+/// Core trait of any plugin.
+/// the functions ```init``` as well as ```shutdown``` have to be implemented
+/// the rest serve as callbacks and have a default empty implementation
 pub trait Plugin: ::std::marker::Sync {
 	fn init(&mut self) -> Result<(), ()>;
 	fn shutdown(&mut self) -> Result<(), ()>;
@@ -56,9 +64,8 @@ pub trait Plugin: ::std::marker::Sync {
 	fn on_channel_move_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, new_parent_id: u64, invoker: Invoker) {
 	}
 
-	// few more
+	// few missing here
 
 	fn on_client_move_event(&mut self, handler: ServerConnectionHandler, client_id: u16, old_channel_id: u64, new_channel_id: u64, visibility: i32, move_message: String) {
-
 	}
 }
