@@ -911,7 +911,14 @@ impl TS3Functions {
 	 * char***, not char*.
 	 */
 
-	pub unsafe fn send_plugin_command(handler: ServerConnectionHandler, plugin_id: String, command: String, target_mode: i32, target_ids: Vec<c_ushort>, return_code: String) -> Result<(), Error> {
+	pub unsafe fn send_plugin_command(
+			handler: ServerConnectionHandler, 
+			plugin_id: String, 
+			command: String, 
+			target_mode: i32, 
+			target_ids: Vec<c_ushort>, 
+			return_code: String
+		) -> Result<(), Error> {
 
 		let plugin_id_cstr = CString::new(plugin_id).unwrap();
 		let command_cstr = CString::new(command).unwrap();
