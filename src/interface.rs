@@ -5,8 +5,11 @@ use std::ffi::CString;
 
 /// Invoker of a request
 pub struct Invoker {
+	/// client id
 	id:				u16,
+	/// display name of that client
 	name:			String,
+	/// a unique id
 	unique_id:		String,
 }
 
@@ -28,13 +31,19 @@ impl Invoker {
 
 /// Trait that has to be implemented by a plugin.
 /// It determines the display values, just as Name, Author, etc.
+/// also the create_instance function needs to be overwritten.
 pub trait PluginDescription {
+	/// Displayed name of the plugin
 	const NAME: &'static str;
+	/// Displayed version of the plugin in the format `x.y.z`.
 	const VERSION: &'static str;
+	/// Displayed author
 	const AUTHOR: &'static str;
+	/// Description of the plugin
 	const DESCRIPTION: &'static str;
+	/// API version, should not be overwritten, default is `20`
 	const API_VERSION: i32 = 20;
-
+	/// Function that creates a new instance of the `Plugin`-implementation
 	fn create_instance() -> Box<Plugin>;
 }
 

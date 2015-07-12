@@ -5,11 +5,12 @@ use definitions::*;
 use ::interface::*;
 
 // TODO: create callbacks here and wrap them
+// we will wrap all callbacks and provide empty default-implementations
+// in the `Plugin` trait, so that we can opt-in by simply overriding them
 
 
 #[no_mangle]
 pub unsafe fn ts3plugin_onConnectStatusChangeEvent(server_handler_id: c_ulong, newStatus: c_int, errorNumber: c_uint) {
-	// TODO
 
 	let singleton = ::state::singleton();
 	let mut guard = singleton.plugin.lock().unwrap();
@@ -24,7 +25,7 @@ pub unsafe fn ts3plugin_onConnectStatusChangeEvent(server_handler_id: c_ulong, n
 
 #[no_mangle]
 pub unsafe fn ts3plugin_onNewChannelEvent(server_handler_id: c_ulong, channel_id: c_ulong, channel_parent_id: c_ulong) {
-	// TODO
+
 	let singleton = ::state::singleton();
 	let mut guard = singleton.plugin.lock().unwrap();
 
@@ -101,7 +102,7 @@ pub unsafe fn ts3plugin_onChannelMoveEvent(
 	}
 }
 
-// few more
+// few more missing here
 
 #[no_mangle]
 pub unsafe fn ts3plugin_onClientMoveEvent(
