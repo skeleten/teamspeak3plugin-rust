@@ -279,7 +279,7 @@ impl TS3Functions {
 		let mut foo: *mut c_char = ::std::ptr::null_mut();
 		let err = (self.getClientLibVersion)(&mut foo);
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			let cstr = CStr::from_ptr(foo);
 			let string = ::std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
 			(self.freeMemory)(foo as *mut c_void);
@@ -293,7 +293,7 @@ impl TS3Functions {
 		let mut version: c_ulong = 0;
 		let err = (self.getClientLibVersionNumber)(&mut version);
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(version as u64)
 		} else {
 			Err(err)
@@ -305,7 +305,7 @@ impl TS3Functions {
 		let err = (self.spawnNewServerConnectionHandler)(port, &mut handler);
 		let err = Error::from(err);
 
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(ServerConnectionHandler(handler as u64))
 		} else {
 			Err(err)
@@ -315,7 +315,7 @@ impl TS3Functions {
 	pub unsafe fn destroy_server_connection_handler(&self, handler: ServerConnectionHandler) -> Result<(), Error> {
 		let err = (self.destroyServerConnectionHandler)(handler.into());
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -327,7 +327,7 @@ impl TS3Functions {
 		let mut foo: *mut c_char = ::std::ptr::null_mut();
 		let err = (self.getErrorMessage)(errorCode as c_uint, &mut foo);
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			let cstr = CStr::from_ptr(foo);
 			let string = ::std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
 			(self.freeMemory)(foo as *mut c_void);
@@ -351,7 +351,7 @@ impl TS3Functions {
 		let channel_ptr = CString::new(channel).unwrap();
 		let err = (self.logMessage)(message_ptr.as_ptr(), severity, channel_ptr.as_ptr(), logId as c_ulong);
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -372,7 +372,7 @@ impl TS3Functions {
 		let ident_cstr = CString::new(identifier).unwrap();
 		let err = (self.getPreProcessorInfoValueFloat)(h as c_ulong, ident_cstr.as_ptr(), &mut result);
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(result)
 		} else {
 			Err(err)
@@ -390,7 +390,7 @@ impl TS3Functions {
 		let ident_cstr = CString::new(identifier).unwrap();
 		let err = (self.getPreProcessorConfigValue)(h as c_ulong, ident_cstr.as_ptr(), &mut foo);
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			let cstr = CStr::from_ptr(foo);
 			let string = ::std::str::from_utf8(cstr.to_bytes()).unwrap().to_owned();
 			(self.freeMemory)(foo as *mut c_void);
@@ -412,7 +412,7 @@ impl TS3Functions {
 		let value_ptr = CString::new(value).unwrap();
 		let err = (self.setPreProcessorConfigValue)(h as c_ulong, ident_ptr.as_ptr(), value_ptr.as_ptr());
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -431,7 +431,7 @@ impl TS3Functions {
 		let ident_cstr = CString::new(identifier).unwrap();
 		let err = (self.getEncodeConfigValue)(h as c_ulong, ident_cstr.as_ptr(), &mut foo);
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			let result = ::std::str::from_utf8(CStr::from_ptr(foo).to_bytes()).unwrap().to_owned();
 			(self.freeMemory)(foo as *mut c_void);
 			Ok(result)
@@ -453,7 +453,7 @@ impl TS3Functions {
 		let err = (self.getPlaybackConfigValueAsFloat)(h as c_ulong, ident_cstr.as_ptr(), &mut result);
 		let err = Error::from(err);
 
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(result)
 		} else {
 			Err(err)
@@ -477,7 +477,7 @@ impl TS3Functions {
 
 		let err = Error::from(err);
 
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -497,7 +497,7 @@ impl TS3Functions {
 			modifier as c_float);
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -509,7 +509,7 @@ impl TS3Functions {
 		let ServerConnectionHandler(h) = handler;
 		let err = (self.startVoiceRecording)(h as c_ulong);
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -520,7 +520,7 @@ impl TS3Functions {
 		let ServerConnectionHandler(h) = handler;
 		let err = (self.stopVoiceRecording)(h as c_ulong);
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -577,7 +577,7 @@ impl TS3Functions {
 			defServPw_cstr.as_ptr());
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -596,7 +596,7 @@ impl TS3Functions {
 			message_cstr.as_ptr());
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -630,7 +630,7 @@ impl TS3Functions {
 			reutrn_code_ptr);
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -651,7 +651,7 @@ impl TS3Functions {
 			returnCode_cstr.as_ptr());
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -682,7 +682,7 @@ impl TS3Functions {
 			returnCode_ptr);
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -714,7 +714,7 @@ impl TS3Functions {
 			returnCode_ptr);
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -737,7 +737,7 @@ impl TS3Functions {
 			return_code_cstr.as_ptr());
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -762,7 +762,7 @@ impl TS3Functions {
 			return_code_cstr.as_ptr());
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -787,7 +787,7 @@ impl TS3Functions {
 			return_code_cstr.as_ptr());
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -809,7 +809,7 @@ impl TS3Functions {
 			return_code_cstr.as_ptr());
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -831,7 +831,7 @@ impl TS3Functions {
 			return_code_cstr.as_ptr());
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -866,7 +866,7 @@ impl TS3Functions {
 				return_code_cstr.as_ptr());
 
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
@@ -892,7 +892,7 @@ impl TS3Functions {
 			channel_ids_c.as_ptr(),
 			return_code_cstr.as_ptr());
 		let err = Error::from(err);
-		if err == Error::ERROR_ok {
+		if err == Error::ok {
 			Ok(())
 		} else {
 			Err(err)
