@@ -905,4 +905,29 @@ impl TS3Functions {
 		let message_cstr = CString::new(message).unwrap();
 		(self.printMessageToCurrentTab)(message_cstr.as_ptr());
 	}
+
+	/* NOTE: the char* result signatures don't seem to make any sense to me at 
+	 * the moment, since they should return a char**, as such they' need to be
+	 * char***, not char*.
+	 */
+
+	pub unsafe fn send_plugin_command(handler: ServerConnectionHandler, plugin_id: String, command: String, target_mode: i32, target_ids: Vec<c_ushort>, return_code: String) -> Result<(), Error> {
+
+		let plugin_id_cstr = CString::new(plugin_id).unwrap();
+		let command_cstr = CString::new(command).unwrap();
+		let return_code_cstr = CString::new(return_code).unwrap();
+		let err = (self.sendPluginCommand)(
+			handler.into(),
+			plugin_id_cstr.as_ptr(),
+			command_cstr.as_ptr(),
+			target_mode as c_int,
+			target_ids.as_ptr(),
+			return_code_cstr.as_ptr()); /* TODO: nullptr if empty?! */
+		let err = Error::from(err);
+		if err = Error::ok {
+			Ok(())
+		} else {
+			Err(err)
+		}
+	}
 }
