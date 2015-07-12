@@ -65,11 +65,17 @@ pub struct PluginBookmarkList {
 
 // public_definitions.h
 
+/// maximum length of a channel name characters
 pub const TS3_MAX_SIZE_CHANNEL_NAME: usize					= 40;
+/// maximum length of a virtual server name characters
 pub const TS3_MAX_SIZE_VIRTUALSERVER_NAME: usize			= 64;
+/// maximum length of a client's nickname in characters
 pub const TS3_MAX_SIZE_CLIENT_NICKNAME: usize				= 64;
+/// minimum required length of a client's nickname in charaters
 pub const TS3_MIN_SIZE_CLIENT_NICKNAME: usize				= 3;
+/// maximum character limit on a reason message (e.g. for kicking a client)
 pub const TS3_MAX_SIZE_REASON_MESSAGE: usize				= 80;
+/// maximum character limit on a text message
 pub const TS3_MAX_SIZE_TEXTMESSAGE: usize					= 1024;
 
 
@@ -91,6 +97,7 @@ pub enum LogLevel {
 	LogLevel_DEVEL
 }
 
+/// contains 3d-coordinates for use in the 3d-sound subsystem.
 pub struct TS3_VECTOR {
 	x:		c_float,
 	y:		c_float,
@@ -102,6 +109,9 @@ pub struct TS3_VECTOR {
 
 
 // newtypes
+/// Wrapper for the common server-connection handle
+/// used to provide helpful utility functions, just as
+/// converting between libc and system types.
 pub struct ServerConnectionHandler(pub u64);
 
 

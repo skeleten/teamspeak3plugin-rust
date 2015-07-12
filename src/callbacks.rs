@@ -4,10 +4,12 @@ use state::*;
 use definitions::*;
 use ::interface::*;
 
-// TODO: create callbacks here and wrap them
-// we will wrap all callbacks and provide empty default-implementations
-// in the `Plugin` trait, so that we can opt-in by simply overriding them
-
+/* TODO: create callbacks here and wrap them
+ * we will wrap all callbacks and provide empty default-implementations
+ * in the `Plugin` trait, so that we can opt-in by simply overriding them
+ * the names and signatures can be taken from the `plugin.h` file in the 
+ * sample plugin shipping with the plugin-sdk.
+ */
 
 #[no_mangle]
 pub unsafe fn ts3plugin_onConnectStatusChangeEvent(server_handler_id: c_ulong, newStatus: c_int, errorNumber: c_uint) {
@@ -93,7 +95,10 @@ pub unsafe fn ts3plugin_onChannelMoveEvent(
 	let mut guard = (*singleton.plugin).lock().unwrap();
 	if let Some(ref mut plugin) = *guard {
 		let handler = ServerConnectionHandler::from(server_handler_id);
-		let invoker = Invoker::new(invoker_id, invoker_name, invoker_uniq_ident);
+		let invoker = Invoker::new(
+			invoker_id,
+			invoker_name,
+			invoker_uniq_ident);
 		plugin.on_channel_move_event(
 			handler,
 			channel_id as  u64,
@@ -106,12 +111,12 @@ pub unsafe fn ts3plugin_onChannelMoveEvent(
 
 #[no_mangle]
 pub unsafe fn ts3plugin_onClientMoveEvent(
-	handler: c_ulong,
-	client_id: c_ushort,
-	old_channel_id: c_ulong,
-	new_channel_id: c_ulong,
-	visibility: c_int,
-	move_message: *const c_char) {
+		handler: c_ulong,
+		client_id: c_ushort,
+		old_channel_id: c_ulong,
+		new_channel_id: c_ulong,
+		visibility: c_int,
+		move_message: *const c_char) {
 
 	let handler = ServerConnectionHandler::from(handler);
 	let move_message_cstr = CStr::from_ptr(move_message);
@@ -128,4 +133,3 @@ pub unsafe fn ts3plugin_onClientMoveEvent(
 			visibility as i32,
 			move_message_str);
 	}
-}
