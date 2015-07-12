@@ -47,8 +47,6 @@ pub trait PluginDescription {
 	fn create_instance() -> Box<Plugin>;
 }
 
-// we allow unused variables for the function-prototypes here
-#[allow(unused_variables)]
 /// Core trait of any plugin.
 /// the functions `init` as well as `shutdown` have to be implemented
 /// the rest serve as callbacks and have a default empty implementation
@@ -56,25 +54,26 @@ pub trait Plugin: ::std::marker::Sync {
 	fn init(&mut self) -> Result<(), ()>;
 	fn shutdown(&mut self) -> Result<(), ()>;
 	
-	fn register_client_functions(&mut self, funcs: ::TS3Functions) -> Result<(), ()>;
 
+	fn register_client_functions(&mut self, funcs: ::TS3Functions) -> Result<(), ()>;
+	#[allow(unused_variables)]
 	fn on_connect_status_change_event(&mut self, handler: ServerConnectionHandler, new_status: i32, error_number: u32) {
 	}
-
+	#[allow(unused_variables)]
 	fn on_new_channel_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, channel_parent_id: u64) {
 	}
-
+	#[allow(unused_variables)]
 	fn on_new_channel_created_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, channel_parent_id: u64, invoker: Invoker) {
 	}
-
+	#[allow(unused_variables)]
 	fn on_del_channel_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, invoker: Invoker)  {
 	}
-
+	#[allow(unused_variables)]
 	fn on_channel_move_event(&mut self, handler: ServerConnectionHandler, channel_id: u64, new_parent_id: u64, invoker: Invoker) {
 	}
 
 	// few missing here
-
+	#[allow(unused_variables)]
 	fn on_client_move_event(&mut self, handler: ServerConnectionHandler, client_id: u16, old_channel_id: u64, new_channel_id: u64, visibility: i32, move_message: String) {
 	}
 }
