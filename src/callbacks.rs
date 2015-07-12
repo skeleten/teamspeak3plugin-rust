@@ -133,3 +133,4 @@ pub unsafe fn ts3plugin_onClientMoveEvent(
 			visibility as i32,
 			move_message_str);
 	}
+}
